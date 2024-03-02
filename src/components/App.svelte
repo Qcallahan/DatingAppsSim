@@ -51,6 +51,11 @@
     <p>Vivamus et enim ut lectus aliquam sodales. Integer sit amet tortor nec lectus congue congue. Ut ut tortor eget mauris venenatis aliquam.</p>
   </div>
 
+  <div class="text">
+    <b>For graders, this is a visulization we are working on of the Gale-Shapley algorithm, we will make simpler visulizations to work up to this but this is the rough draft of the final more complicated one (it may not make much sense if you are not familiar with the algorithm, which is why we want to work up to it, and probably add more labels to this one)</b>
+    <b>You can refresh the page to generate new randomized tables, in the future we will have a randomize button on the site</b>
+  </div>
+
   <div id="container" style="display: flex; justify-content: center; align-items: center;">
   <div id="table-container">
     <button on:click={iterate}>Iterate</button>
