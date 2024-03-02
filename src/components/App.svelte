@@ -53,12 +53,12 @@
 
   <div class="text">
     <b>For graders, this is a visulization we are working on of the Gale-Shapley algorithm, we will make simpler visulizations to work up to this but this is the rough draft of the final more complicated one (it may not make much sense if you are not familiar with the algorithm, which is why we want to work up to it, and probably add more labels to this one)</b>
-    <b>You can refresh the page to generate new randomized tables, in the future we will have a randomize button on the site</b>
   </div>
 
   <div id="container" style="display: flex; justify-content: center; align-items: center;">
   <div id="table-container">
     <button on:click={iterate}>Iterate</button>
+    <button on:click={reset}>Generate Random Preferences</button>
     
     <!-- SVG for circles and lines -->
     <svg width="300" height="300">
@@ -247,6 +247,14 @@ class GS {
     }
 
     reset() {
+        this.#proposers = Array(this.n)
+        this.#requesters = Array(this.n)
+        this.#proposerIndex = Array(this.n)
+        this.#proposerMatch = Array(this.n)
+        this.#requesterMatch = Array(this.n)
+        this.#offers = this.buildHash(this.n)
+        this.#round = 0
+
         let arr = this.buildArray(this.n)
         this.#proposerIndex = this.#proposerIndex.fill(0)
 
@@ -418,6 +426,45 @@ function iterate() {
         }
       });
     });
+}
+
+function reset() {
+    gs.reset();
+
+    // Reset lines
+    const lines = document.querySelectorAll('line');
+    lines.forEach(line => {
+        line.style.stroke = '';
+    });
+
+    // Update proposers table
+    const proposersTable = document.querySelector('#table-container table');
+    updateTable(proposersTable, 'Proposers Preferences', gs.proposers);
+
+    // Update requesters table
+    const requestersTable = document.querySelectorAll('#table-container table')[1];
+    updateTable(requestersTable, 'Requesters Preferences', gs.requesters);
+}
+
+function updateTable(table, captionText, data) {
+    const tableBody = table.querySelector('tbody');
+    tableBody.innerHTML = '';
+
+    data.forEach(rowData => {
+        const row = document.createElement('tr');
+
+        rowData.forEach(cellData => {
+            const cell = document.createElement('td');
+            cell.textContent = cellData;
+            row.appendChild(cell);
+        });
+
+        tableBody.appendChild(row);
+    });
+
+    // Update caption
+    const caption = table.querySelector('caption');
+    caption.textContent = captionText;
 }
 
 </script>
