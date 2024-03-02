@@ -19,7 +19,7 @@
     <p>Vivamus et enim ut lectus aliquam sodales. Integer sit amet tortor nec lectus congue congue. Ut ut tortor eget mauris venenatis aliquam.</p>
   </div>
 
-  <h2 class="reason-title">Reason 2: The Overloaded And The Desperate</h2>
+  <h2 class="reason-title">Reason 2: Overload And Desperation</h2>
 
   <div class="text">
     <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed vestibulum tellus non nunc condimentum, in rutrum metus aliquam. Donec vitae dolor ac magna aliquet vestibulum.</p>
