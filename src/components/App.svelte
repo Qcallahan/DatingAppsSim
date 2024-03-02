@@ -387,8 +387,8 @@ function iterate() {
 
     // Change cell colors in proposers table
     const proposersTable = document.querySelector('#table-container table');
-    const rows = proposersTable.querySelectorAll('tr');
-    rows.forEach((row, rowIndex) => {
+    const proposersRows = proposersTable.querySelectorAll('tr');
+    proposersRows.forEach((row, rowIndex) => {
       const cells = row.querySelectorAll('td');
       cells.forEach((cell, cellIndex) => {
         if (cellIndex === gs.proposerIndex[rowIndex] - 1) {
@@ -398,5 +398,21 @@ function iterate() {
         }
       });
     });
+
+    // Change cell colors in requesters table
+    const requestersTable = document.querySelectorAll('#table-container table')[1];
+    const requestersRows = requestersTable.querySelectorAll('tr');
+    requestersRows.forEach((row, rowIndex) => {
+      const cells = row.querySelectorAll('td');
+      const matchIndex = gs.requesterMatch[rowIndex];
+      cells.forEach((cell, cellIndex) => {
+        if (matchIndex !== undefined && cell.textContent.trim() === matchIndex.toString()) {
+          cell.style.backgroundColor = 'yellow'; // Change cell color
+        } else {
+          cell.style.backgroundColor = ''; // Reset cell color
+        }
+      });
+    });
 }
+
 </script>
