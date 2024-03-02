@@ -52,23 +52,27 @@
   </div>
 
   <div id="container" style="display: flex; justify-content: center; align-items: center;">
-  
-    <div id="table-container">
-
+  <div id="table-container">
     <button on:click={iterate}>Iterate</button>
-
+    
     <!-- SVG for circles and lines -->
-    <svg width="200" height="200">
+    <svg width="300" height="300">
       <!-- Circles for proposers -->
       <g transform="translate(50, 0)">
         <circle cx="0" cy="20" r="10" fill="blue" />
         <circle cx="0" cy="60" r="10" fill="blue" />
         <circle cx="0" cy="100" r="10" fill="blue" />
         <circle cx="0" cy="140" r="10" fill="blue" />
+        <circle cx="0" cy="180" r="10" fill="blue" />
+        <circle cx="0" cy="220" r="10" fill="blue" />
+        <circle cx="0" cy="260" r="10" fill="blue" />
         <text x="-5" y="25" fill="white" text-anchor="middle">0</text>
         <text x="-5" y="65" fill="white" text-anchor="middle">1</text>
         <text x="-5" y="105" fill="white" text-anchor="middle">2</text>
         <text x="-5" y="145" fill="white" text-anchor="middle">3</text>
+        <text x="-5" y="185" fill="white" text-anchor="middle">4</text>
+        <text x="-5" y="225" fill="white" text-anchor="middle">5</text>
+        <text x="-5" y="265" fill="white" text-anchor="middle">6</text>
       </g>
 
       <!-- Circles for requesters -->
@@ -77,12 +81,17 @@
         <circle cx="0" cy="60" r="10" fill="green" />
         <circle cx="0" cy="100" r="10" fill="green" />
         <circle cx="0" cy="140" r="10" fill="green" />
+        <circle cx="0" cy="180" r="10" fill="green" />
+        <circle cx="0" cy="220" r="10" fill="green" />
+        <circle cx="0" cy="260" r="10" fill="green" />
         <text x="-5" y="25" fill="white" text-anchor="middle">0</text>
         <text x="-5" y="65" fill="white" text-anchor="middle">1</text>
         <text x="-5" y="105" fill="white" text-anchor="middle">2</text>
         <text x="-5" y="145" fill="white" text-anchor="middle">3</text>
+        <text x="-5" y="185" fill="white" text-anchor="middle">4</text>
+        <text x="-5" y="225" fill="white" text-anchor="middle">5</text>
+        <text x="-5" y="265" fill="white" text-anchor="middle">6</text>
       </g>
-
       <!-- Lines connecting requesters to proposers -->
       <g transform="translate(50, 0)">
         {#each gs.requesterMatch as match, index}
@@ -96,7 +105,8 @@
       </g>
     </svg>
   </div>
-  </div>
+</div>
+
 
 </main>
 
@@ -310,10 +320,10 @@ class GS {
     }
 }
 
-let gs = new GS(4)
+let gs = new GS(7)
 console.log(gs.proposers)
 console.log(gs.requesters)
-gs.iterate()
+//gs.iterate()
 console.log(gs.requesterMatch)
 
 
@@ -359,6 +369,7 @@ function createTableElement(captionText, data) {
 
 function iterate() {
     gs.iterate();
+    
     // Redraw lines
     const lines = document.querySelectorAll('line');
     lines.forEach((line, index) => {
@@ -373,9 +384,19 @@ function iterate() {
         line.style.stroke = 'none'; // Hide the line if match is undefined
       }
     });
-    
-  console.log(gs.requesterMatch)
 
+    // Change cell colors in proposers table
+    const proposersTable = document.querySelector('#table-container table');
+    const rows = proposersTable.querySelectorAll('tr');
+    rows.forEach((row, rowIndex) => {
+      const cells = row.querySelectorAll('td');
+      cells.forEach((cell, cellIndex) => {
+        if (cellIndex === gs.proposerIndex[rowIndex] - 1) {
+          cell.style.backgroundColor = 'yellow'; // Change cell color
+        } else {
+          cell.style.backgroundColor = ''; // Reset cell color
+        }
+      });
+    });
 }
-
 </script>
