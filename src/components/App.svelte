@@ -43,12 +43,59 @@
     <p>Vivamus et enim ut lectus aliquam sodales. Integer sit amet tortor nec lectus congue congue. Ut ut tortor eget mauris venenatis aliquam.</p>
   </div>
 
-  <h2 class="reason-title"> What Can We Do Better? </h2>
+  <h2 class="reason-title"> The Math Behind Optimal Matchmaking </h2>
 
   <div class="text">
     <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed vestibulum tellus non nunc condimentum, in rutrum metus aliquam. Donec vitae dolor ac magna aliquet vestibulum.</p>
     
     <p>Vivamus et enim ut lectus aliquam sodales. Integer sit amet tortor nec lectus congue congue. Ut ut tortor eget mauris venenatis aliquam.</p>
+  </div>
+
+  <div id="container" style="display: flex; justify-content: center; align-items: center;">
+  
+    <div id="table-container">
+
+    <button on:click={iterate}>Iterate</button>
+
+    <!-- SVG for circles and lines -->
+    <svg width="200" height="200">
+      <!-- Circles for proposers -->
+      <g transform="translate(50, 0)">
+        <circle cx="0" cy="20" r="10" fill="blue" />
+        <circle cx="0" cy="60" r="10" fill="blue" />
+        <circle cx="0" cy="100" r="10" fill="blue" />
+        <circle cx="0" cy="140" r="10" fill="blue" />
+        <text x="-5" y="25" fill="white" text-anchor="middle">0</text>
+        <text x="-5" y="65" fill="white" text-anchor="middle">1</text>
+        <text x="-5" y="105" fill="white" text-anchor="middle">2</text>
+        <text x="-5" y="145" fill="white" text-anchor="middle">3</text>
+      </g>
+
+      <!-- Circles for requesters -->
+      <g transform="translate(150, 0)">
+        <circle cx="0" cy="20" r="10" fill="green" />
+        <circle cx="0" cy="60" r="10" fill="green" />
+        <circle cx="0" cy="100" r="10" fill="green" />
+        <circle cx="0" cy="140" r="10" fill="green" />
+        <text x="-5" y="25" fill="white" text-anchor="middle">0</text>
+        <text x="-5" y="65" fill="white" text-anchor="middle">1</text>
+        <text x="-5" y="105" fill="white" text-anchor="middle">2</text>
+        <text x="-5" y="145" fill="white" text-anchor="middle">3</text>
+      </g>
+
+      <!-- Lines connecting requesters to proposers -->
+      <g transform="translate(50, 0)">
+        {#each gs.requesterMatch as match, index}
+          {#if match !== undefined}
+            <line x1="0" y1={(20 + index * 40)} x2="100" y2={(20 + match * 40)} stroke="black" />
+          {:else}
+            <!-- Invisible line for undefined matches -->
+            <line x1="0" y1="0" x2="0" y2="0" style="stroke: none;" />
+          {/if}
+        {/each}
+      </g>
+    </svg>
+  </div>
   </div>
 
 </main>
@@ -88,6 +135,247 @@
     font-size: 28px;
     text-align: center;
     margin-top: 40px;
-    color: #A74B62; /* Match the banner color for consistency */
+    color: #A74B62;
   }
+
+  table {
+    border-collapse: collapse;
+    width: 50%;
+    margin: 0 auto;
+  }
+  th, td {
+    border: 1px solid black;
+    padding: 8px;
+    text-align: center;
+  }
+
+  #table-container {
+    margin: 20px auto;
+    width: 50%;
+  }
+  
 </style>
+
+<script>
+class GS {
+    //A nxn matrix where each row is the requester preference of that proposer from [best -> worst]
+    #proposers = null
+    //A nxn matrix where each row is an array indexed by proposer containing the resquester's ranking
+    //of that proposer from 0 - n, where n is most prefered.  i.e the 4th element of requester 3's
+    //row is how requester 3 ranks proposer 4
+    #requesters = null
+    //A 1xn array holding how deep in the requester's preference we are in (bookkeeping only)
+    #proposerIndex = null
+    //Shows the current requester for proposer i
+    #proposerMatch = null
+    //Shows the current proposer for requester i
+    #requesterMatch = null
+    //Round # for the sake of iterations
+    #round = 0
+    //A hash for requesters and the offers they got that round
+    #offers = null
+    constructor(numElements) {
+        //Generate template data
+        this.n = numElements
+        this.#proposers = Array(this.n)
+        this.#requesters = Array(this.n)
+        this.#proposerIndex = Array(this.n)
+        this.#proposerMatch = Array(this.n)
+        this.#requesterMatch = Array(this.n)
+        this.#offers = this.buildHash(this.n)
+
+        this.reset()
+    }
+
+    iterate() {
+        this.#round++
+
+        this.#offers = this.buildHash(this.n)
+
+        //Every proposer makes an offer to the requester highest on its list
+        for (let proposer = 0; proposer < this.n; proposer++) {
+            if (this.#proposerMatch[proposer] == null) {
+                this.#offers[this.#proposers[proposer][this.#proposerIndex[proposer]]].push(proposer)
+                this.#proposerIndex[proposer]++
+            }
+        }
+
+        //Every requester accepts the greatest offer if its better than its current position
+        for (let requester = 0; requester < this.n; requester++) {
+            //console.log('requester: ' + requester)
+            if (this.#offers[requester].length > 0) {
+                let currentOffer = this.#requesterMatch[requester]
+                let startingOffer = currentOffer != null ? currentOffer : -1
+                let maxOffer = startingOffer
+                let rank = startingOffer != -1 ? this.#requesters[requester][currentOffer] : -1
+                for (let offerIndex = 0; offerIndex < this.#offers[requester].length; offerIndex++) {
+                    if (rank < this.requesters[requester][this.#offers[requester][offerIndex]]) {
+                        maxOffer = this.#offers[requester][offerIndex]
+                        rank = this.requesters[requester][this.#offers[requester][offerIndex]]
+                    }
+                }
+
+                if (maxOffer == startingOffer) {
+                    continue
+                }
+
+                if (startingOffer != -1) {
+                    this.#proposerMatch[this.#requesterMatch[requester]] = null
+                }
+
+                this.#proposerMatch[maxOffer] = requester
+                this.#requesterMatch[requester] = maxOffer
+            }
+        }
+
+        
+    }
+
+    reset() {
+        let arr = this.buildArray(this.n)
+        this.#proposerIndex = this.#proposerIndex.fill(0)
+
+        //Generate proposer matrix      
+        for (let i = 0; i < this.n; i++) {
+            arr = this.shuffleArray(arr)
+            this.#proposers[i] = arr.slice()
+        }
+
+        //Generate requester matrix
+        for (let i = 0; i < this.n; i++) {
+            arr = this.shuffleArray(arr)
+            this.#requesters[i] = arr.slice()
+        }
+    }
+
+    buildHash(n) {
+        let arr = Array(n)
+        for (let i = 0; i < n; i++) {
+            arr[i] = Array()
+        }
+        return arr
+    }
+
+    buildArray(n) {
+        let arr = Array(n)
+        for (let i = 0; i < n; i++) {
+            arr[i] = i
+        }
+        return arr
+    }
+
+    //Fisher-Yates Shuffle
+    shuffleArray(arr) {
+        let currentIndex = arr.length - 1
+        let randomIndex = 0
+        let temp = 0
+        while (currentIndex > 0) {
+            randomIndex = Math.floor(Math.random() * currentIndex)
+            temp = arr[randomIndex]
+            arr[randomIndex] = arr[currentIndex]
+            arr[currentIndex] = temp
+            currentIndex--
+        }
+
+        return arr
+    }
+
+
+    get proposers() {
+        return this.#proposers
+    }
+
+    get requesters() {
+        return this.#requesters
+    }
+
+    get proposerIndex() {
+        return this.#proposerIndex
+    }
+
+    get proposerMatch() {
+        return this.#proposerMatch
+    }
+
+    get requesterMatch() {
+        return this.#requesterMatch
+    }
+
+    get round() {
+        return this.#round
+    }
+
+    get offers() {
+        return this.#offers
+    }
+}
+
+let gs = new GS(4)
+console.log(gs.proposers)
+console.log(gs.requesters)
+gs.iterate()
+console.log(gs.requesterMatch)
+
+
+import { onMount } from 'svelte';
+
+onMount(() => {
+    const tableContainer = document.getElementById('table-container');
+
+    // Table for proposers preferences
+    const proposersTable = createTableElement('Proposers Preferences', gs.proposers);
+    tableContainer.appendChild(proposersTable);
+
+    // Table for requesters preferences
+    const requestersTable = createTableElement('Requesters Preferences', gs.requesters);
+    tableContainer.appendChild(requestersTable);
+});
+
+function createTableElement(captionText, data) {
+    const table = document.createElement('table');
+    const tableBody = document.createElement('tbody');
+
+    data.forEach(rowData => {
+        const row = document.createElement('tr');
+
+        rowData.forEach(cellData => {
+            const cell = document.createElement('td');
+            cell.textContent = cellData;
+            row.appendChild(cell);
+        });
+
+        tableBody.appendChild(row);
+    });
+
+    table.appendChild(tableBody);
+
+    // Adding caption
+    const caption = document.createElement('caption');
+    caption.textContent = captionText;
+    table.appendChild(caption);
+
+    return table;
+}
+
+function iterate() {
+    gs.iterate();
+    // Redraw lines
+    const lines = document.querySelectorAll('line');
+    lines.forEach((line, index) => {
+      const match = gs.requesterMatch[index];
+      if (match !== undefined) {
+        line.setAttribute('x1', '0');
+        line.setAttribute('y1', (20 + index * 40).toString());
+        line.setAttribute('x2', '100');
+        line.setAttribute('y2', (20 + match * 40).toString());
+        line.style.stroke = 'black'; // Make the line visible if match is defined
+      } else {
+        line.style.stroke = 'none'; // Hide the line if match is undefined
+      }
+    });
+    
+  console.log(gs.requesterMatch)
+
+}
+
+</script>
