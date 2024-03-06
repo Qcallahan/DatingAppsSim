@@ -379,6 +379,8 @@ class GS {
     }
 }
 
+//Create the godel-Shapley object
+//hard coding to 7 element for now but in the future we will probably want to allow the user to change this
 let gs = new GS(7)
 // gs.proposers = [
 //     [2, 0, 3, 1],
@@ -413,6 +415,8 @@ onMount(() => {
     tableContainer.appendChild(requestersTable);
 });
 
+//create the tables at runtime
+//may need to restructure later if we let user dynamically change number of people
 function createTableElement(captionText, data) {
     const table = document.createElement('table');
     const tableBody = document.createElement('tbody');
@@ -439,6 +443,7 @@ function createTableElement(captionText, data) {
     return table;
 }
 
+//Do 1 step of Gale-Shapley
 function iterate() {
     gs.iterate();
     
@@ -487,6 +492,7 @@ function iterate() {
     });
 }
 
+//Randomize the tables and reset Gale-Shapley
 function reset() {
     gs.reset();
 
@@ -505,6 +511,7 @@ function reset() {
     updateTable(requestersTable, 'Requesters Preferences', gs.requesters);
 }
 
+//This function is called by restet to change the numbers in the tables
 function updateTable(table, captionText, data) {
     const tableBody = table.querySelector('tbody');
     tableBody.innerHTML = '';
