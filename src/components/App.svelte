@@ -14,9 +14,82 @@
   <h2 class="reason-title">Reason 1: Too Many Men</h2>
   
   <div class="text">
-    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed vestibulum tellus non nunc condimentum, in rutrum metus aliquam. Donec vitae dolor ac magna aliquet vestibulum.</p>
+    <p>In an ideal world a dating app would have a 50/50 ratio between the genders to maxmimize potential matches. Even if you had the abbility
+    to perfectly pair up users into coupels with 100% succes, if 60% of your apps users are male and the other 40% female, then 20% of the overall userbase 
+    and 1/3 of men would be left unmatched. (For the the purposes of this website we will be talking about just hetrosexul monogemous couples)</p>
     
-    <p>Vivamus et enim ut lectus aliquam sodales. Integer sit amet tortor nec lectus congue congue. Ut ut tortor eget mauris venenatis aliquam.</p>
+    <p>Sadly popular dating apps are actually much worse than even a 60-40 split:</p>
+
+    <p></p>
+    <table>
+      <thead>
+          <tr>
+              <th>App</th>
+              <th>Male (%)</th>
+              <th>Female (%)</th>
+              <th>Min Possible Unmatched (%)</th>
+          </tr>
+      </thead>
+      <tbody>
+          <tr>
+              <td>Tinder</td>
+              <td>78</td>
+              <td>22</td>
+              <td>56</td>
+          </tr>
+          <tr>
+              <td>OKCupid</td>
+              <td>74</td>
+              <td>26</td>
+              <td>48</td>
+          </tr>
+          <tr>
+              <td>Bumble</td>
+              <td>68</td>
+              <td>32</td>
+              <td>36</td>
+          </tr>
+          <tr>
+              <td>Hinge</td>
+              <td>65</td>
+              <td>35</td>
+              <td>30</td>
+          </tr>
+      </tbody>
+      <tfoot>
+          <tr>
+              <td colspan="4" class="subscript">*All statistics from the United States. **These stats are even worse in Europe, with tinder being 90% male</td>
+          </tr>
+      </tfoot>
+    </table>
+
+    <p>These minimum unmatched percentages are based on the asusmption that a dating app is able to create perfect pairs between 
+    all of it's user base, which is far from the truth. In reality users dedicate time to swipping on other users in the hopes 
+    of finding a match, and few of those matches turn into fullblown relationships</p>
+
+    <p>So how do these gender desparitys effect the matches recived by the average user? We can aproximate the answer to this question by running a simulation. Lets
+     assume for the sake of simplicity that we have 100 users and each user swipes on 10 people per day. For now we can also assume that 
+     users like other users 30% of the time (more on these exact statistics later).</p>
+
+    <div class="container">
+      <svg id="svgContainer" width="700" height="700">
+        <!-- Circles will be drawn here -->
+        <g id="circlesGroup"></g>
+        <!-- Lines will be drawn here -->
+        <g id="linesGroup"></g>
+      </svg>
+    </div>
+
+
+    <div class="slider-container">
+      <span class="slider-label">Percentage Male:</span>
+      <input type="range" min="10" max="90" bind:value={malePercentage} class="slider" on:input={updateCircles}>
+      <span>{malePercentage}%</span>
+    </div>
+    <button on:click={simulate}>Simulate</button>
+
+
+
   </div>
 
   <h2 class="reason-title">Reason 2: Overload And Desperation</h2>
@@ -64,13 +137,13 @@
     <svg width="300" height="300">
       <!-- Circles for proposers -->
       <g transform="translate(50, 0)">
-        <circle cx="0" cy="20" r="10" fill="blue" />
-        <circle cx="0" cy="60" r="10" fill="blue" />
-        <circle cx="0" cy="100" r="10" fill="blue" />
-        <circle cx="0" cy="140" r="10" fill="blue" />
-        <circle cx="0" cy="180" r="10" fill="blue" />
-        <circle cx="0" cy="220" r="10" fill="blue" />
-        <circle cx="0" cy="260" r="10" fill="blue" />
+        <circle cx="0" cy="20" r="10" fill="dark blue" />
+        <circle cx="0" cy="60" r="10" fill="dark blue" />
+        <circle cx="0" cy="100" r="10" fill="dark blue" />
+        <circle cx="0" cy="140" r="10" fill="dark blue" />
+        <circle cx="0" cy="180" r="10" fill="dark blue" />
+        <circle cx="0" cy="220" r="10" fill="dark blue" />
+        <circle cx="0" cy="260" r="10" fill="dark blue" />
         <text x="-5" y="25" fill="white" text-anchor="middle">0</text>
         <text x="-5" y="65" fill="white" text-anchor="middle">1</text>
         <text x="-5" y="105" fill="white" text-anchor="middle">2</text>
@@ -168,6 +241,26 @@
     margin: 20px auto;
     width: 50%;
   }
+
+  .container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: -80px;
+    margin-top: -20px;
+  }
+  .slider-container {
+    display: flex;
+    align-items: center;
+    margin-top: 20px;
+  }
+  .slider-label {
+    margin-right: 10px;
+  }
+  .slider {
+    width: 550px;
+  }
+
   
 </style>
 
@@ -354,6 +447,8 @@ onMount(() => {
     // Table for requesters preferences
     const requestersTable = createTableElement('Requesters Preferences', gs.requesters);
     tableContainer.appendChild(requestersTable);
+
+    updateCircles();
 });
 
 //create the tables at runtime
@@ -452,7 +547,7 @@ function reset() {
     updateTable(requestersTable, 'Requesters Preferences', gs.requesters);
 }
 
-//This function is called by restet to change the numbers in the tables
+//This function is called by reset to change the numbers in the tables
 function updateTable(table, captionText, data) {
     const tableBody = table.querySelector('tbody');
     tableBody.innerHTML = '';
@@ -473,5 +568,115 @@ function updateTable(table, captionText, data) {
     const caption = table.querySelector('caption');
     caption.textContent = captionText;
 }
+
+
+//CODE FOR MATCHING SIM VISUALS
+
+  let malePercentage = 50;
+
+  function updateCircles() {
+    const numCircles = 100;
+    const blueCircles = Math.round((malePercentage / 100) * numCircles);
+    const redCircles = numCircles - blueCircles;
+
+    const svgContainer = document.querySelector('#svgContainer');
+    const circlesGroup = document.querySelector('#circlesGroup');
+    const linesGroup = document.querySelector('#linesGroup');
+    const circleRadius = 18;
+    const circleSpacing = 60;
+    const canvasWidth = parseInt(svgContainer.getAttribute('width'));
+    const canvasHeight = parseInt(svgContainer.getAttribute('height'));
+    const startX = (canvasWidth - 10 * circleSpacing) / 2;
+    const startY = (canvasHeight - 10 * circleSpacing) / 2;
+
+    // Clear previous content
+    circlesGroup.innerHTML = '';
+    linesGroup.innerHTML = '';
+
+    // Create circles
+    for (let i = 0; i < numCircles; i++) {
+      const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+      const x = startX + (i % 10) * circleSpacing;
+      const y = startY + Math.floor(i / 10) * circleSpacing;
+      circle.setAttribute('cx', x);
+      circle.setAttribute('cy', y);
+      circle.setAttribute('r', circleRadius);
+      circle.setAttribute('fill', i < blueCircles ? 'blue' : 'pink');
+      circle.setAttribute('stroke', 'none');
+      circle.setAttribute('shape-rendering', 'geometricPrecision');
+      circlesGroup.appendChild(circle);
+    }
+  }
+
+
+function simulate() {
+  const linesGroup = document.querySelector('#linesGroup');
+  const blueCircles = document.querySelectorAll('circle[fill="blue"]');
+  const pinkCircles = document.querySelectorAll('circle[fill="pink"]');
+  const totalLines = blueCircles.length * 10 + pinkCircles.length * 10; // Total number of lines to be drawn
+
+  let linesDrawn = 0; // Counter to track the number of lines drawn
+
+  // Function to draw lines with delay
+  function drawLinesWithDelay(circles, color) {
+    let delay = 0;
+    circles.forEach((circle) => {
+      setTimeout(() => {
+        linesGroup.innerHTML = ''; // Clear previous lines
+        const x1 = parseInt(circle.getAttribute('cx'));
+        const y1 = parseInt(circle.getAttribute('cy'));
+        const targetCircles = color === 'blue' ? pinkCircles : blueCircles;
+
+        for (let i = 0; i < 10; i++) {
+          const randomIndex = Math.floor(Math.random() * targetCircles.length);
+          const targetCircle = targetCircles[randomIndex];
+          const x2 = parseInt(targetCircle.getAttribute('cx'));
+          const y2 = parseInt(targetCircle.getAttribute('cy'));
+          const line = createLine(x1, y1, x2, y2);
+          linesGroup.appendChild(line);
+          linesDrawn++; // Increment the lines counter
+        }
+
+        // Check if all lines have been drawn
+        if (linesDrawn === totalLines) {
+          // Clear all lines after all drawing operations are complete
+          setTimeout(() => {
+            linesGroup.innerHTML = '';
+          }, 100); // Add a slight delay for safety
+        }
+      }, delay);
+      delay += 100; // Adjust this value for the delay between each circle
+    });
+  }
+
+  // Draw lines from blue circles to pink circles
+  drawLinesWithDelay(blueCircles, 'blue');
+
+  // Draw lines from pink circles to blue circles after all blue lines are drawn
+  setTimeout(() => {
+    drawLinesWithDelay(pinkCircles, 'pink');
+  }, blueCircles.length * 100);
+}
+
+
+
+
+function createLine(x1, y1, x2, y2) {
+  const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  line.setAttribute('x1', x1);
+  line.setAttribute('y1', y1);
+  line.setAttribute('x2', x2);
+  line.setAttribute('y2', y2);
+
+  // Randomly assign color based on desired percentage distribution
+  const randomColor = Math.random() <= 0.7 ? 'black' : 'red';
+  line.setAttribute('stroke', randomColor);
+  line.setAttribute('stroke-width', '2');
+
+  return line;
+}
+
+
+
 
 </script>
