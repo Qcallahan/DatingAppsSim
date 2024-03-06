@@ -179,8 +179,10 @@ class GS {
     //of that proposer from 0 - n, where n is most prefered.  i.e the 4th element of requester 3's
     //row is how requester 3 ranks proposer 4
     #requesters = null
-    //A 1xn array holding how deep in the requester's preference we are in (bookkeeping only)
+    //A 1xn array holding how deep in the proposer's preference we are in (bookkeeping only)
     #proposerIndex = null
+    //A 1xn array holding how deep in the requester's preference we are in (bookkeeping only)
+    #requesterIndex = null
     //Shows the current requester for proposer i
     #proposerMatch = null
     //Shows the current proposer for requester i
@@ -189,27 +191,31 @@ class GS {
     #round = 0
     //A hash for requesters and the offers they got that round
     #offers = null
-    constructor(numElements) {
+    constructor(numElements, numPropose = -1) {
         //Generate template data
+        if (numPropose == -1) { numPropose = numElements }
+        this.p = numPropose
         this.n = numElements
-        this.#proposers = Array(this.n)
-        this.#requesters = Array(this.n)
-        this.#proposerIndex = Array(this.n)
-        this.#proposerMatch = Array(this.n)
-        this.#requesterMatch = Array(this.n)
-        this.#offers = this.buildHash(this.n)
-
         this.reset()
     }
+
+    #randomArray = null
 
     iterate() {
         this.#round++
 
         this.#offers = this.buildHash(this.n)
 
+        let picked = this.#randomArray
+
+        if (this.p != this.n) {
+            this.#randomArray = this.shuffleArray(this.#randomArray)
+            picked = this.#randomArray.slice(0, this.p)
+        }
+
         //Every proposer makes an offer to the requester highest on its list
         for (let proposer = 0; proposer < this.n; proposer++) {
-            if (this.#proposerMatch[proposer] == null) {
+            if (this.#proposerMatch[proposer] == null && picked.includes(proposer)) {
                 this.#offers[this.#proposers[proposer][this.#proposerIndex[proposer]]].push(proposer)
                 this.#proposerIndex[proposer]++
             }
@@ -224,9 +230,9 @@ class GS {
                 let maxOffer = startingOffer
                 let rank = startingOffer != -1 ? this.#requesters[requester][currentOffer] : -1
                 for (let offerIndex = 0; offerIndex < this.#offers[requester].length; offerIndex++) {
-                    if (rank < this.requesters[requester][this.#offers[requester][offerIndex]]) {
+                    if (rank < this.#requesters[requester][this.#offers[requester][offerIndex]]) {
                         maxOffer = this.#offers[requester][offerIndex]
-                        rank = this.requesters[requester][this.#offers[requester][offerIndex]]
+                        rank = this.#requesters[requester][this.#offers[requester][offerIndex]]
                     }
                 }
 
@@ -238,6 +244,7 @@ class GS {
                     this.#proposerMatch[this.#requesterMatch[requester]] = null
                 }
 
+                this.#requesterIndex[requester] = this.n - 1 - maxOffer
                 this.#proposerMatch[maxOffer] = requester
                 this.#requesterMatch[requester] = maxOffer
             }
@@ -250,13 +257,16 @@ class GS {
         this.#proposers = Array(this.n)
         this.#requesters = Array(this.n)
         this.#proposerIndex = Array(this.n)
+        this.#requesterIndex = Array(this.n)
         this.#proposerMatch = Array(this.n)
         this.#requesterMatch = Array(this.n)
         this.#offers = this.buildHash(this.n)
         this.#round = 0
+        this.#randomArray = this.buildArray(this.n)
 
         let arr = this.buildArray(this.n)
         this.#proposerIndex = this.#proposerIndex.fill(0)
+        this.#requesterIndex = this.#requesterIndex.fill(0)
 
         //Generate proposer matrix      
         for (let i = 0; i < this.n; i++) {
@@ -269,6 +279,7 @@ class GS {
             arr = this.shuffleArray(arr)
             this.#requesters[i] = arr.slice()
         }
+
     }
 
     buildHash(n) {
@@ -309,11 +320,35 @@ class GS {
     }
 
     get requesters() {
-        return this.#requesters
+        let n = this.#requesters.length
+        let output = Array(n)
+        for (let i = 0; i < n; i++) {
+            output[i] = Array(n)
+            for (let j = 0; j < n; j++) {
+                output[i][this.#requesters[i][j]] = j
+            }
+            output[i] = output[i].reverse()
+        }
+
+        return output
+
+        //return this.#requesters
+    }
+
+    set proposers(p) {
+        this.#proposers = p
+    }
+
+    set requesters(r) {
+        this.#requesters = r
     }
 
     get proposerIndex() {
         return this.#proposerIndex
+    }
+
+    get requesterIndex() {
+        return this.#requesterIndex
     }
 
     get proposerMatch() {
@@ -331,9 +366,33 @@ class GS {
     get offers() {
         return this.#offers
     }
+
+    set numPropose(num) {
+        if (0 >= num || this.n < num) {
+            return
+        }
+        this.p = num
+    }
+
+    get numPropose() {
+        return this.p
+    }
 }
 
 let gs = new GS(7)
+// gs.proposers = [
+//     [2, 0, 3, 1],
+//     [3,2,1,0],
+//     [0,3,2,1],
+//     [2,0,1,3],
+// ]
+// gs.requesters = [
+// [3,1,2,0],
+// [1,2,0,3],
+// [0,1,3,2],
+// [1,2,0,3]
+// ]
+
 console.log(gs.proposers)
 console.log(gs.requesters)
 //gs.iterate()
