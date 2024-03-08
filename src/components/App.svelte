@@ -500,11 +500,11 @@ onMount(() => {
     const tableContainer = document.getElementById('table-container');
 
     // Table for proposers preferences
-    const proposersTable = createTableElement('Proposers Preferences', gs.proposers);
+    const proposersTable = createTableElement('Proposers Preferences\n⟵Preferred', gs.proposers);
     tableContainer.appendChild(proposersTable);
 
     // Table for requesters preferences
-    const requestersTable = createTableElement('Requesters Preferences', gs.requesters);
+    const requestersTable = createTableElement('Requesters Preferences\n⟵Preferred', gs.requesters);
     tableContainer.appendChild(requestersTable);
 
     updateCircles();
@@ -516,8 +516,14 @@ function createTableElement(captionText, data) {
     const table = document.createElement('table');
     const tableBody = document.createElement('tbody');
 
+    let i = 0;
     data.forEach(rowData => {
         const row = document.createElement('tr');
+
+        i++
+        const cell = document.createElement('td');
+        cell.textContent = `${i}: `;
+        row.appendChild(cell);
 
         rowData.forEach(cellData => {
             const cell = document.createElement('td');
@@ -563,7 +569,7 @@ function iterate() {
     proposersRows.forEach((row, rowIndex) => {
       const cells = row.querySelectorAll('td');
       cells.forEach((cell, cellIndex) => {
-        if (cellIndex === gs.proposerIndex[rowIndex] - 1) {
+        if (cellIndex === gs.proposerIndex[rowIndex]) {
           cell.style.backgroundColor = 'yellow'; // Change cell color
         } else {
           cell.style.backgroundColor = ''; // Reset cell color
@@ -599,11 +605,11 @@ function reset() {
 
     // Update proposers table
     const proposersTable = document.querySelector('#table-container table');
-    updateTable(proposersTable, 'Proposers Preferences', gs.proposers);
+    updateTable(proposersTable, 'Proposers Preferences\n⟵Preferred', gs.proposers);
 
     // Update requesters table
     const requestersTable = document.querySelectorAll('#table-container table')[1];
-    updateTable(requestersTable, 'Requesters Preferences', gs.requesters);
+    updateTable(requestersTable, 'Requesters Preferences\n⟵Preferred', gs.requesters);
 }
 
 //This function is called by reset to change the numbers in the tables
@@ -611,8 +617,15 @@ function updateTable(table, captionText, data) {
     const tableBody = table.querySelector('tbody');
     tableBody.innerHTML = '';
 
+    let i = 0;
+
     data.forEach(rowData => {
         const row = document.createElement('tr');
+
+        i++
+        const cell = document.createElement('td');
+        cell.textContent = `${i}: `;
+        row.appendChild(cell);
 
         rowData.forEach(cellData => {
             const cell = document.createElement('td');
