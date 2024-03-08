@@ -520,10 +520,11 @@ function createTableElement(captionText, data) {
     data.forEach(rowData => {
         const row = document.createElement('tr');
 
-        i++
+        
         const cell = document.createElement('td');
         cell.textContent = `${i}: `;
         row.appendChild(cell);
+        i++;
 
         rowData.forEach(cellData => {
             const cell = document.createElement('td');
@@ -622,10 +623,10 @@ function updateTable(table, captionText, data) {
     data.forEach(rowData => {
         const row = document.createElement('tr');
 
-        i++
         const cell = document.createElement('td');
         cell.textContent = `${i}: `;
         row.appendChild(cell);
+        i++;
 
         rowData.forEach(cellData => {
             const cell = document.createElement('td');
