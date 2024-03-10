@@ -906,45 +906,54 @@
       users like other users 30% of the time (more on these exact statistics
       later).
     </p>
-
-    <table class="chart-table">
-      <tr>
-        <td>Average Likes</td>
-        <td>Average Matches</td>
-      </tr>
-      <tr>
-        <td id="chart-container"></td>
-        <td id="chart-container2"></td>
-      </tr>
-    </table>
-
-    <div class="container">
-      <svg id="svgContainer" width="700" height="700">
-        <!-- Circles will be drawn here -->
-        <g id="circlesGroup"></g>
-        <!-- Lines will be drawn here -->
-        <g id="linesGroup"></g>
-        <!-- Text elements associated with blue circles -->
-        <g id="textGroupBlue"></g>
-        <!-- Text elements associated with pink circles -->
-        <g id="textGroupPink"></g>
-      </svg>
-    </div>
-
-    <div class="slider-container">
-      <span class="slider-label">Percentage Male:</span>
-      <input
-        type="range"
-        min="20"
-        max="80"
-        bind:value={malePercentage}
-        class="slider"
-        on:input={updateCircles}
-      />
-      <span>{malePercentage}%</span>
-    </div>
-    <button on:click={simulate}>Simulate</button>
   </div>
+
+  <table class="layout-table">
+    <tr>
+      <td>
+        <div class="container">
+          <svg id="svgContainer" width="700" height="700">
+            <!-- Circles will be drawn here -->
+            <g id="circlesGroup"></g>
+            <!-- Lines will be drawn here -->
+            <g id="linesGroup"></g>
+            <!-- Text elements associated with blue circles -->
+            <g id="textGroupBlue"></g>
+            <!-- Text elements associated with pink circles -->
+            <g id="textGroupPink"></g>
+          </svg>
+        </div>
+      </td>
+      <td>
+        <div class="table-container">
+          <table class="chart-table">
+            <tr>
+              <td>Average Likes</td>
+              <td id="chart-container"></td>
+            </tr>
+            <tr>
+              <td>Average Matches</td>
+              <td id="chart-container2"></td>
+            </tr>
+          </table>
+        </div>
+      </td>
+    </tr>
+  </table>
+
+  <div class="slider-container">
+    <span class="slider-label">Percentage Male:</span>
+    <input
+      type="range"
+      min="20"
+      max="80"
+      bind:value={malePercentage}
+      class="slider"
+      on:input={updateCircles}
+    />
+    <span>{malePercentage}%</span>
+  </div>
+  <button on:click={simulate}>Simulate</button>
 
   <h2 class="reason-title">Reason 2: Overload And Desperation</h2>
 
@@ -1138,7 +1147,8 @@
   }
 
   .container {
-    display: flex;
+    display: inline-block;
+    vertical-align: top;
     justify-content: center;
     align-items: center;
     margin-bottom: -80px;
@@ -1147,7 +1157,7 @@
   .slider-container {
     display: flex;
     align-items: center;
-    margin-top: 20px;
+    margin-top: -30px;
   }
   .slider-label {
     margin-right: 10px;
@@ -1161,5 +1171,22 @@
   .chart-table td {
     border: none;
     border-collapse: collapse;
+  }
+
+  .table-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; /* Align items at the start of the container */
+    margin-top: 100px;
+  }
+
+  .layout-table {
+    width: 100%;
+    border-collapse: collapse; /* Merge the borders of cells */
+    border-color: transparent; /* Set border color to transparent */
+  }
+
+  .layout-table td {
+    border: none; /* Remove borders from table cells */
   }
 </style>
