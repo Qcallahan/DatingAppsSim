@@ -576,7 +576,7 @@
             // if we don't do this there is always one set of lines left
             setTimeout(() => {
               linesGroup.innerHTML = "";
-            }, delay + 100); // Adjusted delay here
+            }, delay + 10); // Adjusted delay here
           }
 
           // Display like count on the target circles
@@ -618,7 +618,7 @@
             textGroup.appendChild(text); // Append text to text group
           });
         }, delay);
-        delay += 100; // Adjust this value for the delay between each circle
+        delay += 10; // Adjust this value for the delay between each circle
       });
     }
 
@@ -628,7 +628,7 @@
     // Draw lines from pink circles to blue circles after all blue lines are drawn
     setTimeout(() => {
       drawLinesWithDelay(pinkCircles, "pink", textGroupPink);
-    }, blueCircles.length * 100);
+    }, blueCircles.length * 10);
   }
 
   function createLine(x1, y1, x2, y2) {
