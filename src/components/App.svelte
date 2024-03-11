@@ -247,12 +247,12 @@
 
   let data = [
     { color: "Women", averageLikes: 0, color2: "pink" },
-    { color: "Men", averageLikes: 0, color2: "blue" },
+    { color: "Men", averageLikes: 0, color2: "#7597E7" },
   ];
 
   let matchData = [
     { color: "Women", averageMatches: 0, color2: "pink" },
-    { color: "Men", averageMatches: 0, color2: "blue" },
+    { color: "Men", averageMatches: 0, color2: "#7597E7" },
   ];
 
   onMount(() => {
@@ -455,7 +455,9 @@
 
     // Calculate the number of top circles for blue and pink colors
     const topBlueCircles = Math.round(topPercentageBlue * blueCircles);
-    const topPinkCircles = Math.round(topPercentagePink * redCircles);
+    const topPinkCircles = Math.round(
+      topPercentagePink * redCircles + blueCircles
+    );
 
     // Create circles
     for (let i = 0; i < numCircles; i++) {
@@ -468,13 +470,13 @@
       circle.setAttribute("cx", x);
       circle.setAttribute("cy", y);
       circle.setAttribute("r", circleRadius);
-      circle.setAttribute("fill", i < blueCircles ? "blue" : "pink");
+      circle.setAttribute("fill", i < blueCircles ? "#7597E7" : "pink");
       circle.setAttribute("stroke", "none");
       circle.setAttribute("shape-rendering", "geometricPrecision");
 
       // Set attractiveness attribute
       let attractiveness;
-      if (circle.getAttribute("fill") === "blue") {
+      if (circle.getAttribute("fill") === "#7597E7") {
         attractiveness = i < topBlueCircles ? "top" : "average";
       } else {
         attractiveness = i < topPinkCircles ? "top" : "average";
@@ -497,7 +499,7 @@
   function simulate() {
     const svgContainer = document.getElementById("svgContainer");
     const linesGroup = document.querySelector("#linesGroup");
-    const blueCircles = document.querySelectorAll('circle[fill="blue"]');
+    const blueCircles = document.querySelectorAll('circle[fill="#7597E7"]');
     const pinkCircles = document.querySelectorAll('circle[fill="pink"]');
     const totalLines = blueCircles.length * 10 + pinkCircles.length * 10; // Total number of lines to be drawn
 
@@ -541,7 +543,7 @@
           linesGroup.innerHTML = "";
           const x1 = parseInt(circle.getAttribute("cx"));
           const y1 = parseInt(circle.getAttribute("cy"));
-          const targetCircles = color === "blue" ? pinkCircles : blueCircles;
+          const targetCircles = color === "#7597E7" ? pinkCircles : blueCircles;
           const circlesAlreadyTargeted = new Set(); // Keep track of circles already targeted
 
           // Add the current circle to the likes map if it doesn't exist
@@ -577,7 +579,7 @@
               targetCircle.setAttribute("data-like-count", likeCount);
 
               // Update average likes and total likes based on circle color
-              if (color === "blue") {
+              if (color === "#7597E7") {
                 totalPinkLikes++;
                 averageLikesPink = totalPinkLikes / pinkCircles.length;
               } else {
@@ -654,7 +656,7 @@
     }
 
     // Draw lines from blue circles to pink circles
-    drawLinesWithDelay(blueCircles, "blue", textGroupBlue);
+    drawLinesWithDelay(blueCircles, "#7597E7", textGroupBlue);
 
     // Draw lines from pink circles to blue circles after all blue lines are drawn
     setTimeout(() => {
@@ -678,7 +680,7 @@
       } else {
         redProbability = 0.0847; // Adjust probability for average attraction
       }
-    } else if (fromColor === "blue") {
+    } else if (fromColor === "#7597E7") {
       // Probability for drawing red line from blue to pink
       if (toAttractiveness === "top") {
         redProbability = 0.928; // Adjust probability for top attraction
@@ -1141,7 +1143,6 @@
 </main>
 
 <style>
-  /* Existing CSS */
   .banner {
     background-color: #a74b62;
     color: #ffe1e8;
