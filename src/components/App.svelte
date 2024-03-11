@@ -449,6 +449,14 @@
     circlesGroup.innerHTML = "";
     linesGroup.innerHTML = "";
 
+    // Define percentages for attractiveness
+    const topPercentagePink = 0.25;
+    const topPercentageBlue = 0.15;
+
+    // Calculate the number of top circles for blue and pink colors
+    const topBlueCircles = Math.round(topPercentageBlue * blueCircles);
+    const topPinkCircles = Math.round(topPercentagePink * redCircles);
+
     // Create circles
     for (let i = 0; i < numCircles; i++) {
       const circle = document.createElementNS(
@@ -463,6 +471,21 @@
       circle.setAttribute("fill", i < blueCircles ? "blue" : "pink");
       circle.setAttribute("stroke", "none");
       circle.setAttribute("shape-rendering", "geometricPrecision");
+
+      // Set attractiveness attribute
+      let attractiveness;
+      if (circle.getAttribute("fill") === "blue") {
+        attractiveness = i < topBlueCircles ? "top" : "average";
+      } else {
+        attractiveness = i < topPinkCircles ? "top" : "average";
+      }
+      circle.setAttribute("data-attractiveness", attractiveness);
+
+      // Set stroke for top attractiveness circles
+      if (attractiveness === "top") {
+        circle.setAttribute("stroke", "black"); // Set outline color
+        circle.setAttribute("stroke-width", "2"); // Set outline width
+      }
 
       // Generate unique ID for the circle
       circle.setAttribute("id", "circle" + i);
@@ -537,7 +560,15 @@
             const y2 = parseInt(targetCircle.getAttribute("cy"));
 
             // Create line
-            const line = createLine(x1, y1, x2, y2);
+            const line = createLine(
+              x1,
+              y1,
+              x2,
+              y2,
+              color,
+              targetCircle.getAttribute("data-attractiveness")
+            );
+
             if (line.getAttribute("stroke") === "red") {
               // Increment like count for the target circle if the line is red
               let likeCount =
@@ -631,15 +662,32 @@
     }, blueCircles.length * 10);
   }
 
-  function createLine(x1, y1, x2, y2) {
+  function createLine(x1, y1, x2, y2, fromColor, toAttractiveness) {
     const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
     line.setAttribute("x1", x1);
     line.setAttribute("y1", y1);
     line.setAttribute("x2", x2);
     line.setAttribute("y2", y2);
 
-    // Randomly assign color based on desired percentage distribution
-    const isRed = Math.random() <= 0.3;
+    let redProbability;
+
+    if (fromColor === "pink") {
+      // Probability for drawing red line from pink to blue
+      if (toAttractiveness === "top") {
+        redProbability = 0.48; // Adjust probability for top attraction
+      } else {
+        redProbability = 0.0847; // Adjust probability for average attraction
+      }
+    } else if (fromColor === "blue") {
+      // Probability for drawing red line from blue to pink
+      if (toAttractiveness === "top") {
+        redProbability = 0.928; // Adjust probability for top attraction
+      } else {
+        redProbability = 0.3093; // Adjust probability for average attraction
+      }
+    }
+
+    const isRed = Math.random() <= redProbability;
     const color = isRed ? "red" : "black";
     const opacity = isRed ? 0.7 : 0.6; // Adjust opacity values as needed
 
@@ -682,7 +730,7 @@
       .domain(data.map((d) => d.color))
       .range([0, width])
       .padding(0.1);
-    yScale = d3.scaleLinear().domain([0, 30]).range([height, 0]); // Adjusted to go from 0 to 10
+    yScale = d3.scaleLinear().domain([0, 45]).range([height, 0]); // Adjusted to go from 0 to 10
 
     // Add X axis
     svg
