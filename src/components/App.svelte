@@ -256,28 +256,33 @@
   ];
 
   onMount(() => {
-    const tableContainer = document.getElementById("table-container");
+    updateCircles(1);
 
-    // Table for proposers preferences
-    const proposersTable = createTableElement(
-      "Proposers Preferences\n⟵Preferred",
-      gs.proposers
-    );
-    tableContainer.appendChild(proposersTable);
+    createChart(1);
+    createChart(1);
+    createChartMatches(1);
+    createChartMatches(1);
 
-    // Table for requesters preferences
-    const requestersTable = createTableElement(
-      "Requesters Preferences\n⟵Preferred",
-      gs.requesters
-    );
-    tableContainer.appendChild(requestersTable);
+    updateCircles(2);
 
-    updateCircles();
+    createChart(2);
+    createChart(2);
+    createChartMatches(2);
+    createChartMatches(2);
 
-    createChart();
-    createChart();
-    createChartMatches();
-    createChartMatches();
+    updateCircles(3);
+
+    createChart(3);
+    createChart(3);
+    createChartMatches(3);
+    createChartMatches(3);
+
+    updateCircles(4);
+
+    createChart(4);
+    createChart(4);
+    createChartMatches(4);
+    createChartMatches(4);
   });
 
   //create the tables at runtime
@@ -428,18 +433,38 @@
 
   //CODE FOR MATCHING SIM VISUALS
 
-  let malePercentage = 50;
-
-  function updateCircles() {
+  let malePercentage = [50, 50, 50, 65, 65];
+  let simulationRunning = [false, false, false, false, false];
+  let mTopLikeRate = [1, 0.3, 0.3, 46, 46];
+  let mAverageLikeRate = [1, 0.3, 0.3, 46, 46];
+  let wToplikeRate = [1, 0.3, 0.3, 14, 14];
+  let wAverageLikeRate = [1, 0.3, 0.3, 14, 14];
+  function updateCircles(instanceNumber) {
     const numCircles = 100;
-    const blueCircles = Math.round((malePercentage / 100) * numCircles);
+    const blueCircles = Math.round(
+      (malePercentage[instanceNumber] / 100) * numCircles
+    );
     const redCircles = numCircles - blueCircles;
 
-    const svgContainer = document.querySelector("#svgContainer");
-    const circlesGroup = document.querySelector("#circlesGroup");
-    const linesGroup = document.querySelector("#linesGroup");
+    const svgContainers = document.querySelectorAll(
+      ".layout-table .container svg"
+    );
+    const circlesGroups = document.querySelectorAll(
+      ".layout-table #circlesGroup"
+    );
+    const linesGroups = document.querySelectorAll(".layout-table #linesGroup");
     const circleRadius = 18;
     const circleSpacing = 60;
+
+    // Ensure instanceNumber is within valid range
+    if (instanceNumber < 1 || instanceNumber > svgContainers.length) {
+      console.error("Invalid instance number provided.");
+      return;
+    }
+
+    const svgContainer = svgContainers[instanceNumber - 1];
+    const circlesGroup = circlesGroups[instanceNumber - 1];
+    const linesGroup = linesGroups[instanceNumber - 1];
     const canvasWidth = parseInt(svgContainer.getAttribute("width"));
     const canvasHeight = parseInt(svgContainer.getAttribute("height"));
     const startX = (canvasWidth - 10 * circleSpacing) / 2;
@@ -484,9 +509,11 @@
       circle.setAttribute("data-attractiveness", attractiveness);
 
       // Set stroke for top attractiveness circles
-      if (attractiveness === "top") {
-        circle.setAttribute("stroke", "black"); // Set outline color
-        circle.setAttribute("stroke-width", "2"); // Set outline width
+      if (instanceNumber > 3) {
+        if (attractiveness === "top") {
+          circle.setAttribute("stroke", "black"); // Set outline color
+          circle.setAttribute("stroke-width", "2"); // Set outline width
+        }
       }
 
       // Generate unique ID for the circle
@@ -496,22 +523,54 @@
     }
   }
 
-  function simulate() {
-    const svgContainer = document.getElementById("svgContainer");
-    const linesGroup = document.querySelector("#linesGroup");
-    const blueCircles = document.querySelectorAll('circle[fill="#7597E7"]');
-    const pinkCircles = document.querySelectorAll('circle[fill="pink"]');
-    const totalLines = blueCircles.length * 10 + pinkCircles.length * 10; // Total number of lines to be drawn
+  function simulate(
+    index,
+    ptbt,
+    ptba,
+    btpt,
+    btpa,
+    fast = false,
+    elementsToDisable = []
+  ) {
+    if (simulationRunning[index - 1]) {
+      return; // If simulation is already running, return early
+    }
+    simulationRunning[index - 1] = true;
 
+    elementsToDisable.forEach((element) => {
+      element.disabled = true;
+    });
+
+    let waitTime = 100;
+    if (fast === true) {
+      waitTime = 15;
+    }
+
+    const containers = document.querySelectorAll(".layout-table");
+    const container = containers[index - 1]; // Adjusting for 1-based indexing
+
+    const svgContainer = container.querySelector(".container svg");
+    const linesGroup = container.querySelector("#linesGroup");
+    const blueCircles = container.querySelectorAll('circle[fill="#7597E7"]');
+    const pinkCircles = container.querySelectorAll('circle[fill="pink"]');
+    const totalLines = blueCircles.length * 20 + pinkCircles.length * 20; // Total number of lines to be drawn
     let linesDrawn = 0; // Counter to track the number of lines drawn
 
     // Group for text elements associated with blue circles
-    const textGroupBlue = document.getElementById("textGroupBlue");
+    const textGroupBlue = container.querySelector("#textGroupBlue");
+    textGroupBlue.innerHTML = "";
 
     // Group for text elements associated with pink circles
-    const textGroupPink = document.getElementById("textGroupPink");
+    const textGroupPink = container.querySelector("#textGroupPink");
+    textGroupPink.innerHTML = "";
 
-    // Function to draw lines with delay
+    blueCircles.forEach((targetCircle) => {
+      targetCircle.setAttribute("data-like-count", "0");
+    });
+    pinkCircles.forEach((targetCircle) => {
+      targetCircle.setAttribute("data-like-count", "0");
+    });
+
     let averageLikesPink = 0;
     let averageLikesBlue = 0;
     let totalPinkLikes = 0;
@@ -527,17 +586,16 @@
     function handleLike(fromCircle, toCircle) {
       // Check if the 'toCircle' exists in the likes of the 'fromCircle'
       if (likesMap[toCircle.id] && likesMap[toCircle.id].has(fromCircle.id)) {
-        console.log("MATCH!");
         totalMatches++;
         averageMatchesBlue = totalMatches / blueCircles.length;
         averageMatchesPink = totalMatches / pinkCircles.length;
       }
-      console.log(matchData);
     }
 
     // Modify the existing code inside the drawLinesWithDelay function to handle likes and matches
     function drawLinesWithDelay(circles, color, textGroup) {
       let delay = 0;
+
       circles.forEach((circle) => {
         setTimeout(() => {
           linesGroup.innerHTML = "";
@@ -545,6 +603,8 @@
           const y1 = parseInt(circle.getAttribute("cy"));
           const targetCircles = color === "#7597E7" ? pinkCircles : blueCircles;
           const circlesAlreadyTargeted = new Set(); // Keep track of circles already targeted
+
+          //console.log(textGroupBlue.querySelectorAll("text").length);
 
           // Add the current circle to the likes map if it doesn't exist
           if (!likesMap[circle.id]) {
@@ -568,7 +628,11 @@
               x2,
               y2,
               color,
-              targetCircle.getAttribute("data-attractiveness")
+              targetCircle.getAttribute("data-attractiveness"),
+              ptbt,
+              ptba,
+              btpt,
+              btpa
             );
 
             if (line.getAttribute("stroke") === "red") {
@@ -596,20 +660,24 @@
                 averageLikesPink,
                 averageLikesBlue,
                 averageMatchesPink,
-                averageMatchesBlue
+                averageMatchesBlue,
+                index
               );
             }
             linesGroup.appendChild(line);
             linesDrawn++; // Increment the lines counter
           }
-
           // Check if all lines have been drawn
           if (linesDrawn === totalLines) {
             // Clear all lines after all drawing operations are complete
             // if we don't do this there is always one set of lines left
             setTimeout(() => {
               linesGroup.innerHTML = "";
-            }, delay + 10); // Adjusted delay here
+              simulationRunning[index - 1] = false;
+              elementsToDisable.forEach((element) => {
+                element.disabled = false;
+              });
+            }, waitTime); // Adjusted delay here
           }
 
           // Display like count on the target circles
@@ -619,7 +687,8 @@
             let textId = targetCircle.getAttribute("data-text-id"); // Get the ID of the existing text element
 
             if (textId) {
-              const existingText = document.getElementById(textId);
+              // Get the existing text element within the specific container
+              const existingText = container.querySelector(`[id="${textId}"]`);
               if (existingText && existingText.parentNode === textGroup) {
                 existingText.remove();
               }
@@ -651,7 +720,7 @@
             textGroup.appendChild(text); // Append text to text group
           });
         }, delay);
-        delay += 10; // Adjust this value for the delay between each circle
+        delay += waitTime; // Adjust this value for the delay between each circle
       });
     }
 
@@ -661,10 +730,21 @@
     // Draw lines from pink circles to blue circles after all blue lines are drawn
     setTimeout(() => {
       drawLinesWithDelay(pinkCircles, "pink", textGroupPink);
-    }, blueCircles.length * 10);
+    }, blueCircles.length * waitTime);
   }
 
-  function createLine(x1, y1, x2, y2, fromColor, toAttractiveness) {
+  function createLine(
+    x1,
+    y1,
+    x2,
+    y2,
+    fromColor,
+    toAttractiveness,
+    ptbt,
+    ptba,
+    btpt,
+    btpa
+  ) {
     const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
     line.setAttribute("x1", x1);
     line.setAttribute("y1", y1);
@@ -676,16 +756,16 @@
     if (fromColor === "pink") {
       // Probability for drawing red line from pink to blue
       if (toAttractiveness === "top") {
-        redProbability = 0.48; // Adjust probability for top attraction
+        redProbability = ptbt; // Adjust probability for top attraction
       } else {
-        redProbability = 0.0847; // Adjust probability for average attraction
+        redProbability = ptba; // Adjust probability for average attraction
       }
     } else if (fromColor === "#7597E7") {
       // Probability for drawing red line from blue to pink
       if (toAttractiveness === "top") {
-        redProbability = 0.928; // Adjust probability for top attraction
+        redProbability = btpt; // Adjust probability for top attraction
       } else {
-        redProbability = 0.3093; // Adjust probability for average attraction
+        redProbability = btpa; // Adjust probability for average attraction
       }
     }
 
@@ -702,7 +782,10 @@
     return line;
   }
 
-  function createChart() {
+  function createChart(index) {
+    const containers = document.querySelectorAll(".layout-table");
+    const container = containers[index - 1]; // Adjusting for 1-based indexing
+
     const svgWidth = 400; // Width of the SVG container
     const svgHeight = 300; // Height of the SVG container
     const margin = { top: 20, right: 20, bottom: 30, left: 50 };
@@ -710,12 +793,12 @@
     const height = svgHeight - margin.top - margin.bottom;
 
     // Select existing SVG element if it exists
-    let svg = d3.select("#chart-container svg");
+    let svg = d3.select(container.querySelector("#chart-container svg"));
 
     // If SVG doesn't exist, create a new one
     if (svg.empty()) {
       svg = d3
-        .select("#chart-container")
+        .select(container.querySelector("#chart-container"))
         .append("svg")
         .attr("width", svgWidth)
         .attr("height", svgHeight)
@@ -763,11 +846,14 @@
           .attr("x", xScale(d.color) + xScale.bandwidth() / 2)
           .attr("y", yScale(d.averageLikes) - 5)
           .attr("text-anchor", "middle")
-          .text(d.averageLikes);
+          .text(d.averageLikes.toFixed(2));
       });
   }
 
-  function createChartMatches() {
+  function createChartMatches(index) {
+    const containers = document.querySelectorAll(".layout-table");
+    const container = containers[index - 1]; // Adjusting for 1-based indexing
+
     const svgWidth = 400; // Width of the SVG container
     const svgHeight = 300; // Height of the SVG container
     const margin = { top: 20, right: 20, bottom: 30, left: 50 };
@@ -775,12 +861,12 @@
     const height = svgHeight - margin.top - margin.bottom;
 
     // Select existing SVG element if it exists
-    let svg = d3.select("#chart-container2 svg");
+    let svg = d3.select(container.querySelector("#chart-container2 svg"));
 
     // If SVG doesn't exist, create a new one
     if (svg.empty()) {
       svg = d3
-        .select("#chart-container2")
+        .select(container.querySelector("#chart-container2"))
         .append("svg")
         .attr("width", svgWidth)
         .attr("height", svgHeight)
@@ -828,27 +914,28 @@
           .attr("x", xScale(d.color) + xScale.bandwidth() / 2)
           .attr("y", yScale(d.averageMatches) - 5)
           .attr("text-anchor", "middle")
-          .text(d.averageMatches);
+          .text(d.averageMatches.toFixed(2));
       });
   }
 
-  function updateChart() {
-    // Create the new chart
-    createChart();
-    createChartMatches();
+  function updateChart(index) {
+    //Update the charts
+    createChart(index);
+    createChartMatches(index);
   }
 
   function updateAverages(
     averageLikesPink,
     averageLikesBlue,
     averageMatchesPink,
-    averageMatchesBlue
+    averageMatchesBlue,
+    index
   ) {
     data[0].averageLikes = averageLikesPink;
     data[1].averageLikes = averageLikesBlue;
     matchData[0].averageMatches = averageMatchesPink;
     matchData[1].averageMatches = averageMatchesBlue;
-    updateChart();
+    updateChart(index);
   }
 </script>
 
@@ -872,9 +959,80 @@
     </p>
 
     <p>
-      In this website, we will show that even with minimal assumptions about the
-      user base, the fundamental nature of these dating apps leads to many of
-      their users suffering these very fates.
+      In this website, we will show through simulation that even with minimal
+      assumptions about the user base, the fundamental nature of these dating
+      apps leads to many of their users suffering these very fates.
+    </p>
+
+    <p>
+      Lets start with a simple unmodified simulation, if you press the simulate
+      button below you will be able to see the user of our simulated dating app
+      swiping on eachother on at a time. Each user will swip on 20 random users
+      of the opposite gender liking 30% of them, a red line indicates a like.
+      Underneath each user you will see the total number of likes they have
+      recived displayed as text. What do you see when you hit simulate?
+    </p>
+  </div>
+
+  <div style="display: flex; justify-content: center;">
+    <div
+      style="position: relative; z-index: 1; margin-bottom: -50px; text-align: center;"
+    >
+      <button
+        style="padding: 10px 20px; font-size: 16px;"
+        on:click={() => simulate(1, 0.3, 0.3, 0.3, 0.3)}>Simulate</button
+      >
+    </div>
+    <div
+      style="position: relative; z-index: 1; margin-bottom: -50px; text-align: center;"
+    >
+      <button
+        style="padding: 10px 20px; font-size: 16px;"
+        on:click={() => simulate(1, 0.3, 0.3, 0.3, 0.3, true)}
+        >Fast Simulate</button
+      >
+    </div>
+  </div>
+
+  <table class="layout-table">
+    <tr>
+      <td>
+        <div class="container">
+          <svg id="svgContainer" width="700" height="700">
+            <!-- Circles will be drawn here -->
+            <g id="circlesGroup"></g>
+            <!-- Lines will be drawn here -->
+            <g id="linesGroup"></g>
+            <!-- Text elements associated with blue circles -->
+            <g id="textGroupBlue"></g>
+            <!-- Text elements associated with pink circles -->
+            <g id="textGroupPink"></g>
+          </svg>
+        </div>
+      </td>
+      <td>
+        <div class="table-container">
+          <table class="chart-table">
+            <tr>
+              <td>Average Likes</td>
+              <td id="chart-container"></td>
+            </tr>
+            <tr>
+              <td>Average Matches</td>
+              <td id="chart-container2"></td>
+            </tr>
+          </table>
+        </div>
+      </td>
+    </tr>
+  </table>
+
+  <div class="text">
+    <p>
+      You should see that men and women get roughly the same average likes and
+      exactly the same average matches. Though there could be some variance due
+      to the small sample size. Now that you undestand the simulation lets get
+      to showing the common ways these numbers get skewed.
     </p>
   </div>
 
@@ -958,6 +1116,26 @@
     </p>
   </div>
 
+  <div style="display: flex; justify-content: center;">
+    <div
+      style="position: relative; z-index: 1; margin-bottom: -50px; text-align: center;"
+    >
+      <button
+        style="padding: 10px 20px; font-size: 16px;"
+        on:click={() => simulate(2, 0.3, 0.3, 0.3, 0.3)}>Simulate</button
+      >
+    </div>
+    <div
+      style="position: relative; z-index: 1; margin-bottom: -50px; text-align: center;"
+    >
+      <button
+        style="padding: 10px 20px; font-size: 16px;"
+        on:click={() => simulate(2, 0.3, 0.3, 0.3, 0.3, true)}
+        >Fast Simulate</button
+      >
+    </div>
+  </div>
+
   <table class="layout-table">
     <tr>
       <td>
@@ -991,19 +1169,20 @@
     </tr>
   </table>
 
-  <div class="slider-container">
-    <span class="slider-label">Percentage Male:</span>
-    <input
-      type="range"
-      min="20"
-      max="80"
-      bind:value={malePercentage}
-      class="slider"
-      on:input={updateCircles}
-    />
-    <span>{malePercentage}%</span>
+  <div class="sliders-wrapper">
+    <div class="slider-container">
+      <span class="slider-label">Percentage Male:</span>
+      <input
+        type="range"
+        min="20"
+        max="80"
+        bind:value={malePercentage[2]}
+        class="slider"
+        on:input={() => updateCircles(2)}
+      />
+      <span>{malePercentage[2]}%</span>
+    </div>
   </div>
-  <button on:click={simulate}>Simulate</button>
 
   <h2 class="reason-title">Reason 2: Overload And Desperation</h2>
 
@@ -1018,6 +1197,114 @@
       Vivamus et enim ut lectus aliquam sodales. Integer sit amet tortor nec
       lectus congue congue. Ut ut tortor eget mauris venenatis aliquam.
     </p>
+  </div>
+
+  <div style="display: flex; justify-content: center;">
+    <div
+      style="position: relative; z-index: 1; margin-bottom: -50px; text-align: center;"
+    >
+      <button
+        style="padding: 10px 20px; font-size: 16px;"
+        on:click={() =>
+          simulate(
+            3,
+            wAverageLikeRate[3] / 100,
+            wAverageLikeRate[3] / 100,
+            mAverageLikeRate[3] / 100,
+            mAverageLikeRate[3] / 100
+          )}>Simulate</button
+      >
+    </div>
+    <div
+      style="position: relative; z-index: 1; margin-bottom: -50px; text-align: center;"
+    >
+      <button
+        style="padding: 10px 20px; font-size: 16px;"
+        on:click={() =>
+          simulate(
+            3,
+            wAverageLikeRate[3] / 100,
+            wAverageLikeRate[3] / 100,
+            mAverageLikeRate[3] / 100,
+            mAverageLikeRate[3] / 100,
+            true
+          )}>Fast Simulate</button
+      >
+    </div>
+  </div>
+
+  <table class="layout-table">
+    <tr>
+      <td>
+        <div class="container">
+          <svg id="svgContainer" width="700" height="700">
+            <!-- Circles will be drawn here -->
+            <g id="circlesGroup"></g>
+            <!-- Lines will be drawn here -->
+            <g id="linesGroup"></g>
+            <!-- Text elements associated with blue circles -->
+            <g id="textGroupBlue"></g>
+            <!-- Text elements associated with pink circles -->
+            <g id="textGroupPink"></g>
+          </svg>
+        </div>
+      </td>
+      <td>
+        <div class="table-container">
+          <table class="chart-table">
+            <tr>
+              <td>Average Likes</td>
+              <td id="chart-container"></td>
+            </tr>
+            <tr>
+              <td>Average Matches</td>
+              <td id="chart-container2"></td>
+            </tr>
+          </table>
+        </div>
+      </td>
+    </tr>
+  </table>
+
+  <div class="sliders-wrapper">
+    <div class="slider-container">
+      <span class="slider-label">Percentage Male:</span>
+      <input
+        type="range"
+        min="20"
+        max="80"
+        bind:value={malePercentage[3]}
+        class="slider"
+        on:input={() => updateCircles(3)}
+      />
+      <span>{malePercentage[3]}%</span>
+    </div>
+  </div>
+  <div class="sliders-wrapper" style="margin-top: 20px;">
+    <div class="slider-container">
+      <span class="slider-label">Like Rate of Men:</span>
+      <input
+        type="range"
+        min="0"
+        max="100"
+        bind:value={mAverageLikeRate[3]}
+        class="slider"
+      />
+      <span>{mAverageLikeRate[3]}%</span>
+    </div>
+  </div>
+  <div class="sliders-wrapper" style="margin-top: 20px;">
+    <div class="slider-container">
+      <span class="slider-label">Like Rate of Women:</span>
+      <input
+        type="range"
+        min="0"
+        max="100"
+        bind:value={wAverageLikeRate[3]}
+        class="slider"
+      />
+      <span>{wAverageLikeRate[3]}%</span>
+    </div>
   </div>
 
   <h2 class="reason-title">Reason 3: Attractiveness</h2>
@@ -1035,109 +1322,111 @@
     </p>
   </div>
 
-  <h2 class="reason-title">Reason 4: The ELO System</h2>
-
-  <div class="text">
-    <p>
-      Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed vestibulum
-      tellus non nunc condimentum, in rutrum metus aliquam. Donec vitae dolor ac
-      magna aliquet vestibulum.
-    </p>
-
-    <p>
-      Vivamus et enim ut lectus aliquam sodales. Integer sit amet tortor nec
-      lectus congue congue. Ut ut tortor eget mauris venenatis aliquam.
-    </p>
-  </div>
-
-  <h2 class="reason-title">The Math Behind Optimal Matchmaking</h2>
-
-  <div class="text">
-    <p>
-      Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed vestibulum
-      tellus non nunc condimentum, in rutrum metus aliquam. Donec vitae dolor ac
-      magna aliquet vestibulum.
-    </p>
-
-    <p>
-      Vivamus et enim ut lectus aliquam sodales. Integer sit amet tortor nec
-      lectus congue congue. Ut ut tortor eget mauris venenatis aliquam.
-    </p>
-  </div>
-
-  <div class="text">
-    <b
-      >For graders, this is a visulization we are working on of the Gale-Shapley
-      algorithm, we will make simpler visulizations to work up to this but this
-      is the rough draft of the final more complicated one (it may not make much
-      sense if you are not familiar with the algorithm, which is why we want to
-      work up to it, and probably add more labels to this one)</b
+  <div style="display: flex; justify-content: center;">
+    <div
+      style="position: relative; z-index: 1; margin-bottom: -50px; text-align: center;"
     >
+      <button
+        style="padding: 10px 20px; font-size: 16px;"
+        on:click={() =>
+          simulate(
+            4,
+            wAverageLikeRate[4] / 30,
+            wAverageLikeRate[4] / 170,
+            mAverageLikeRate[4] / 50,
+            mAverageLikeRate[4] / 150
+          )}>Simulate</button
+      >
+    </div>
+    <div
+      style="position: relative; z-index: 1; margin-bottom: -50px; text-align: center;"
+    >
+      <button
+        style="padding: 10px 20px; font-size: 16px;"
+        on:click={() =>
+          simulate(
+            4,
+            wAverageLikeRate[4] / 30,
+            wAverageLikeRate[4] / 170,
+            mAverageLikeRate[4] / 50,
+            mAverageLikeRate[4] / 150,
+            true
+          )}>Fast Simulate</button
+      >
+    </div>
   </div>
 
-  <div
-    id="container"
-    style="display: flex; justify-content: center; align-items: center;"
-  >
-    <div id="table-container">
-      <button on:click={iterate}>Iterate</button>
-      <button on:click={reset}>Generate Random Preferences</button>
+  <table class="layout-table">
+    <tr>
+      <td>
+        <div class="container">
+          <svg id="svgContainer" width="700" height="700">
+            <!-- Circles will be drawn here -->
+            <g id="circlesGroup"></g>
+            <!-- Lines will be drawn here -->
+            <g id="linesGroup"></g>
+            <!-- Text elements associated with blue circles -->
+            <g id="textGroupBlue"></g>
+            <!-- Text elements associated with pink circles -->
+            <g id="textGroupPink"></g>
+          </svg>
+        </div>
+      </td>
+      <td>
+        <div class="table-container">
+          <table class="chart-table">
+            <tr>
+              <td>Average Likes</td>
+              <td id="chart-container"></td>
+            </tr>
+            <tr>
+              <td>Average Matches</td>
+              <td id="chart-container2"></td>
+            </tr>
+          </table>
+        </div>
+      </td>
+    </tr>
+  </table>
 
-      <!-- SVG for circles and lines -->
-      <svg width="300" height="300">
-        <!-- Circles for proposers -->
-        <g transform="translate(50, 0)">
-          <circle cx="0" cy="20" r="10" fill="dark blue" />
-          <circle cx="0" cy="60" r="10" fill="dark blue" />
-          <circle cx="0" cy="100" r="10" fill="dark blue" />
-          <circle cx="0" cy="140" r="10" fill="dark blue" />
-          <circle cx="0" cy="180" r="10" fill="dark blue" />
-          <circle cx="0" cy="220" r="10" fill="dark blue" />
-          <circle cx="0" cy="260" r="10" fill="dark blue" />
-          <text x="-5" y="25" fill="white" text-anchor="middle">0</text>
-          <text x="-5" y="65" fill="white" text-anchor="middle">1</text>
-          <text x="-5" y="105" fill="white" text-anchor="middle">2</text>
-          <text x="-5" y="145" fill="white" text-anchor="middle">3</text>
-          <text x="-5" y="185" fill="white" text-anchor="middle">4</text>
-          <text x="-5" y="225" fill="white" text-anchor="middle">5</text>
-          <text x="-5" y="265" fill="white" text-anchor="middle">6</text>
-        </g>
-
-        <!-- Circles for requesters -->
-        <g transform="translate(150, 0)">
-          <circle cx="0" cy="20" r="10" fill="green" />
-          <circle cx="0" cy="60" r="10" fill="green" />
-          <circle cx="0" cy="100" r="10" fill="green" />
-          <circle cx="0" cy="140" r="10" fill="green" />
-          <circle cx="0" cy="180" r="10" fill="green" />
-          <circle cx="0" cy="220" r="10" fill="green" />
-          <circle cx="0" cy="260" r="10" fill="green" />
-          <text x="-5" y="25" fill="white" text-anchor="middle">0</text>
-          <text x="-5" y="65" fill="white" text-anchor="middle">1</text>
-          <text x="-5" y="105" fill="white" text-anchor="middle">2</text>
-          <text x="-5" y="145" fill="white" text-anchor="middle">3</text>
-          <text x="-5" y="185" fill="white" text-anchor="middle">4</text>
-          <text x="-5" y="225" fill="white" text-anchor="middle">5</text>
-          <text x="-5" y="265" fill="white" text-anchor="middle">6</text>
-        </g>
-        <!-- Lines connecting requesters to proposers -->
-        <g transform="translate(50, 0)">
-          {#each gs.requesterMatch as match, index}
-            {#if match !== undefined}
-              <line
-                x1="0"
-                y1={20 + index * 40}
-                x2="100"
-                y2={20 + match * 40}
-                stroke="black"
-              />
-            {:else}
-              <!-- Invisible line for undefined matches -->
-              <line x1="0" y1="0" x2="0" y2="0" style="stroke: none;" />
-            {/if}
-          {/each}
-        </g>
-      </svg>
+  <div class="sliders-wrapper">
+    <div class="slider-container">
+      <span class="slider-label">Percentage Male:</span>
+      <input
+        type="range"
+        min="20"
+        max="80"
+        bind:value={malePercentage[4]}
+        class="slider"
+        on:input={() => updateCircles(4)}
+      />
+      <span>{malePercentage[4]}%</span>
+    </div>
+  </div>
+  <div class="sliders-wrapper" style="margin-top: 20px;">
+    <div class="slider-container">
+      <span class="slider-label">Like Rate of Men:</span>
+      <input
+        type="range"
+        min="0"
+        max="100"
+        bind:value={mAverageLikeRate[4]}
+        class="slider"
+      />
+      <span>{mAverageLikeRate[4]}%</span>
+    </div>
+  </div>
+  <div class="sliders-wrapper" style="margin-top: 20px;">
+    <div class="slider-container">
+      <span class="slider-label">Like Rate of Women:</span>
+      <input
+        type="range"
+        min="0"
+        max="100"
+        bind:value={wAverageLikeRate[4]}
+        class="slider"
+      />
+      <span>{wAverageLikeRate[4]}%</span>
     </div>
   </div>
 </main>
@@ -1190,11 +1479,6 @@
     text-align: center;
   }
 
-  #table-container {
-    margin: 20px auto;
-    width: 50%;
-  }
-
   .container {
     display: inline-block;
     vertical-align: top;
@@ -1203,16 +1487,22 @@
     margin-bottom: -80px;
     margin-top: -20px;
   }
+  .sliders-wrapper {
+    margin-top: -75px; /* Adjust margin-top value to shift the sliders up */
+  }
   .slider-container {
     display: flex;
     align-items: center;
-    margin-top: -30px;
+    margin-top: 10px; /* Adjust margin as necessary */
   }
+
   .slider-label {
     margin-right: 10px;
+    min-width: 150px; /* Set a minimum width for the label */
   }
+
   .slider {
-    width: 550px;
+    width: calc(100% - 800px); /* Adjust width of the slider */
   }
 
   .chart-table,
@@ -1220,6 +1510,11 @@
   .chart-table td {
     border: none;
     border-collapse: collapse;
+  }
+
+  .chart-table {
+    position: relative;
+    top: -20px;
   }
 
   .table-container {
