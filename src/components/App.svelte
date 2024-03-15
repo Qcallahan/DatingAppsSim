@@ -1210,6 +1210,35 @@
       <span>{wAverageLikeRate[4]}%</span>
     </div>
   </div>
+
+  <h2 class="reason-title">Sources</h2>
+
+  <div class="text">
+    <p>
+      https://en.lab.appa.pe/2020-02/which-dating-apps-are-reigning-in-the-usa.html
+    </p>
+
+    <p>https://techreport.com/statistics/dating-apps-statistics/</p>
+
+    <p>https://datingzest.com/tinder-statistics/</p>
+
+    <p>
+      https://www.statista.com/statistics/975984/us-bumble-user-ratio-gender/
+    </p>
+
+    <p>
+      https://www.netimperative.com/2019/04/05/online-dating-trends-men-outnumber-women-on-tinder-by-9-to-1-while-grinder-wins-for-age-diversity/
+    </p>
+
+    <p>
+      https://medium.com/fact-of-the-day-1/inequality-of-dating-app-likes-e8c0aaa0cf4e
+    </p>
+
+    <p>
+      And a heavy source of inspiration:
+      https://www.youtube.com/watch?v=x3lypVnJ0HM&t=431s
+    </p>
+  </div>
 </main>
 
 <style>
