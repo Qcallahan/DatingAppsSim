@@ -1,247 +1,14 @@
 <script>
-  class GS {
-    //A nxn matrix where each row is the requester preference of that proposer from [best -> worst]
-    #proposers = null;
-    //A nxn matrix where each row is an array indexed by proposer containing the resquester's ranking
-    //of that proposer from 0 - n, where n is most prefered.  i.e the 4th element of requester 3's
-    //row is how requester 3 ranks proposer 4
-    #requesters = null;
-    //A 1xn array holding how deep in the proposer's preference we are in (bookkeeping only)
-    #proposerIndex = null;
-    //A 1xn array holding how deep in the requester's preference we are in (bookkeeping only)
-    #requesterIndex = null;
-    //Shows the current requester for proposer i
-    #proposerMatch = null;
-    //Shows the current proposer for requester i
-    #requesterMatch = null;
-    //Round # for the sake of iterations
-    #round = 0;
-    //A hash for requesters and the offers they got that round
-    #offers = null;
-    constructor(numElements, numPropose = -1) {
-      //Generate template data
-      if (numPropose == -1) {
-        numPropose = numElements;
-      }
-      this.p = numPropose;
-      this.n = numElements;
-      this.reset();
-    }
-
-    #randomArray = null;
-
-    iterate() {
-      this.#round++;
-
-      this.#offers = this.buildHash(this.n);
-
-      let picked = this.#randomArray;
-
-      if (this.p != this.n) {
-        this.#randomArray = this.shuffleArray(this.#randomArray);
-        picked = this.#randomArray.slice(0, this.p);
-      }
-
-      //Every proposer makes an offer to the requester highest on its list
-      for (let proposer = 0; proposer < this.n; proposer++) {
-        if (
-          this.#proposerMatch[proposer] == null &&
-          picked.includes(proposer)
-        ) {
-          this.#offers[
-            this.#proposers[proposer][this.#proposerIndex[proposer]]
-          ].push(proposer);
-          this.#proposerIndex[proposer]++;
-        }
-      }
-
-      //Every requester accepts the greatest offer if its better than its current position
-      for (let requester = 0; requester < this.n; requester++) {
-        //console.log('requester: ' + requester)
-        if (this.#offers[requester].length > 0) {
-          let currentOffer = this.#requesterMatch[requester];
-          let startingOffer = currentOffer != null ? currentOffer : -1;
-          let maxOffer = startingOffer;
-          let rank =
-            startingOffer != -1
-              ? this.#requesters[requester][currentOffer]
-              : -1;
-          for (
-            let offerIndex = 0;
-            offerIndex < this.#offers[requester].length;
-            offerIndex++
-          ) {
-            if (
-              rank <
-              this.#requesters[requester][this.#offers[requester][offerIndex]]
-            ) {
-              maxOffer = this.#offers[requester][offerIndex];
-              rank =
-                this.#requesters[requester][
-                  this.#offers[requester][offerIndex]
-                ];
-            }
-          }
-
-          if (maxOffer == startingOffer) {
-            continue;
-          }
-
-          if (startingOffer != -1) {
-            this.#proposerMatch[this.#requesterMatch[requester]] = null;
-          }
-
-          this.#requesterIndex[requester] = this.n - 1 - maxOffer;
-          this.#proposerMatch[maxOffer] = requester;
-          this.#requesterMatch[requester] = maxOffer;
-        }
-      }
-    }
-
-    reset() {
-      this.#proposers = Array(this.n);
-      this.#requesters = Array(this.n);
-      this.#proposerIndex = Array(this.n);
-      this.#requesterIndex = Array(this.n);
-      this.#proposerMatch = Array(this.n);
-      this.#requesterMatch = Array(this.n);
-      this.#offers = this.buildHash(this.n);
-      this.#round = 0;
-      this.#randomArray = this.buildArray(this.n);
-
-      let arr = this.buildArray(this.n);
-      this.#proposerIndex = this.#proposerIndex.fill(0);
-      this.#requesterIndex = this.#requesterIndex.fill(0);
-
-      //Generate proposer matrix
-      for (let i = 0; i < this.n; i++) {
-        arr = this.shuffleArray(arr);
-        this.#proposers[i] = arr.slice();
-      }
-
-      //Generate requester matrix
-      for (let i = 0; i < this.n; i++) {
-        arr = this.shuffleArray(arr);
-        this.#requesters[i] = arr.slice();
-      }
-    }
-
-    buildHash(n) {
-      let arr = Array(n);
-      for (let i = 0; i < n; i++) {
-        arr[i] = Array();
-      }
-      return arr;
-    }
-
-    buildArray(n) {
-      let arr = Array(n);
-      for (let i = 0; i < n; i++) {
-        arr[i] = i;
-      }
-      return arr;
-    }
-
-    //Fisher-Yates Shuffle
-    shuffleArray(arr) {
-      let currentIndex = arr.length - 1;
-      let randomIndex = 0;
-      let temp = 0;
-      while (currentIndex > 0) {
-        randomIndex = Math.floor(Math.random() * currentIndex);
-        temp = arr[randomIndex];
-        arr[randomIndex] = arr[currentIndex];
-        arr[currentIndex] = temp;
-        currentIndex--;
-      }
-
-      return arr;
-    }
-
-    get proposers() {
-      return this.#proposers;
-    }
-
-    get requesters() {
-      let n = this.#requesters.length;
-      let output = Array(n);
-      for (let i = 0; i < n; i++) {
-        output[i] = Array(n);
-        for (let j = 0; j < n; j++) {
-          output[i][this.#requesters[i][j]] = j;
-        }
-        output[i] = output[i].reverse();
-      }
-
-      return output;
-
-      //return this.#requesters
-    }
-
-    set proposers(p) {
-      this.#proposers = p;
-    }
-
-    set requesters(r) {
-      this.#requesters = r;
-    }
-
-    get proposerIndex() {
-      return this.#proposerIndex;
-    }
-
-    get requesterIndex() {
-      return this.#requesterIndex;
-    }
-
-    get proposerMatch() {
-      return this.#proposerMatch;
-    }
-
-    get requesterMatch() {
-      return this.#requesterMatch;
-    }
-
-    get round() {
-      return this.#round;
-    }
-
-    get offers() {
-      return this.#offers;
-    }
-
-    set numPropose(num) {
-      if (0 >= num || this.n < num) {
-        return;
-      }
-      this.p = num;
-    }
-
-    get numPropose() {
-      return this.p;
-    }
-  }
-
-  //Create the godel-Shapley object
-  //hard coding to 7 element for now but in the future we will probably want to allow the user to change this
-  let gs = new GS(7);
-  // gs.proposers = [
-  //     [2, 0, 3, 1],
-  //     [3,2,1,0],
-  //     [0,3,2,1],
-  //     [2,0,1,3],
-  // ]
-  // gs.requesters = [
-  // [3,1,2,0],
-  // [1,2,0,3],
-  // [0,1,3,2],
-  // [1,2,0,3]
-  // ]
-
-  //gs.iterate()
-
   import { onMount } from "svelte";
   import * as d3 from "d3";
+
+  let slider1;
+  let slider2;
+  let slider3;
+  let slider4;
+  let slider5;
+  let slider6;
+  let slider7;
 
   let xScale, yScale;
 
@@ -1122,7 +889,8 @@
     >
       <button
         style="padding: 10px 20px; font-size: 16px;"
-        on:click={() => simulate(2, 0.3, 0.3, 0.3, 0.3)}>Simulate</button
+        on:click={() => simulate(2, 0.3, 0.3, 0.3, 0.3, false, [slider1])}
+        >Simulate</button
       >
     </div>
     <div
@@ -1130,7 +898,7 @@
     >
       <button
         style="padding: 10px 20px; font-size: 16px;"
-        on:click={() => simulate(2, 0.3, 0.3, 0.3, 0.3, true)}
+        on:click={() => simulate(2, 0.3, 0.3, 0.3, 0.3, true, [slider1])}
         >Fast Simulate</button
       >
     </div>
@@ -1177,6 +945,7 @@
         min="20"
         max="80"
         bind:value={malePercentage[2]}
+        bind:this={slider1}
         class="slider"
         on:input={() => updateCircles(2)}
       />
@@ -1211,7 +980,9 @@
             wAverageLikeRate[3] / 100,
             wAverageLikeRate[3] / 100,
             mAverageLikeRate[3] / 100,
-            mAverageLikeRate[3] / 100
+            mAverageLikeRate[3] / 100,
+            false,
+            [slider2, slider3, slider4]
           )}>Simulate</button
       >
     </div>
@@ -1227,7 +998,8 @@
             wAverageLikeRate[3] / 100,
             mAverageLikeRate[3] / 100,
             mAverageLikeRate[3] / 100,
-            true
+            true,
+            [slider2, slider3, slider4]
           )}>Fast Simulate</button
       >
     </div>
@@ -1274,6 +1046,7 @@
         min="20"
         max="80"
         bind:value={malePercentage[3]}
+        bind:this={slider2}
         class="slider"
         on:input={() => updateCircles(3)}
       />
@@ -1288,6 +1061,7 @@
         min="0"
         max="100"
         bind:value={mAverageLikeRate[3]}
+        bind:this={slider3}
         class="slider"
       />
       <span>{mAverageLikeRate[3]}%</span>
@@ -1301,6 +1075,7 @@
         min="0"
         max="100"
         bind:value={wAverageLikeRate[3]}
+        bind:this={slider4}
         class="slider"
       />
       <span>{wAverageLikeRate[3]}%</span>
@@ -1334,7 +1109,9 @@
             wAverageLikeRate[4] / 30,
             wAverageLikeRate[4] / 170,
             mAverageLikeRate[4] / 50,
-            mAverageLikeRate[4] / 150
+            mAverageLikeRate[4] / 150,
+            false,
+            [slider5, slider6, slider7]
           )}>Simulate</button
       >
     </div>
@@ -1350,7 +1127,8 @@
             wAverageLikeRate[4] / 170,
             mAverageLikeRate[4] / 50,
             mAverageLikeRate[4] / 150,
-            true
+            true,
+            [slider5, slider6, slider7]
           )}>Fast Simulate</button
       >
     </div>
@@ -1397,6 +1175,7 @@
         min="20"
         max="80"
         bind:value={malePercentage[4]}
+        bind:this={slider5}
         class="slider"
         on:input={() => updateCircles(4)}
       />
@@ -1411,6 +1190,7 @@
         min="0"
         max="100"
         bind:value={mAverageLikeRate[4]}
+        bind:this={slider6}
         class="slider"
       />
       <span>{mAverageLikeRate[4]}%</span>
@@ -1424,6 +1204,7 @@
         min="0"
         max="100"
         bind:value={wAverageLikeRate[4]}
+        bind:this={slider7}
         class="slider"
       />
       <span>{wAverageLikeRate[4]}%</span>
