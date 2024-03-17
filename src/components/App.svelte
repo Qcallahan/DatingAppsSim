@@ -582,7 +582,7 @@
       .domain(data.map((d) => d.color))
       .range([0, width])
       .padding(0.1);
-    yScale = d3.scaleLinear().domain([0, 45]).range([height, 0]); // Adjusted to go from 0 to 10
+    yScale = d3.scaleLinear().domain([0, 55]).range([height, 0]); // Adjusted to go from 0 to 10
 
     // Add X axis
     svg
@@ -650,7 +650,7 @@
       .domain(matchData.map((d) => d.color))
       .range([0, width])
       .padding(0.1);
-    yScale = d3.scaleLinear().domain([0, 3]).range([height, 0]); // Adjusted to go from 0 to 10
+    yScale = d3.scaleLinear().domain([0, 9]).range([height, 0]); // Adjusted to go from 0 to 10
 
     // Add X axis
     svg
@@ -713,31 +713,56 @@
 
   <div class="text">
     <p>
-      Have you ever felt like you're stranded in a parched desert, thirsting for
-      even a drop of attention on dating apps, while others seem to be swimming
-      in an ocean of saltwater, overwhelmed by a flood of unsuitable suitors?
+      Imagine this: a man stranded in a desert. He desperately searches for
+      water- crossing far and wide. No matter how far he travels, all he finds
+      is sand, the endless desert almost mocking him. He trudges on with the
+      hope of salvation- a promised oasis, whispered of in his fevered dreams
+      and glimpsed upon in the cruel mirages of the desert. He grows weaker,
+      every motion he makes becoming heavier as the futility of his mission
+      chips away at his very being.
     </p>
 
     <p>
-      For some, the well of potential matches runs dry, leaving them parched for
-      even the slightest acknowledgment. Meanwhile, others find themselves
-      drowning in an endless deluge of attention, though much of it proves to be
-      anything but refreshing.
+      Now imagine a woman lost at sea- she is at the mercy of the unrelenting
+      waves, the horizon taunting her. She won’t last long at this rate, she
+      needs water. The water surrounding her calls to her, like a siren drawing
+      in men at sea, promising to fulfill her needs and save her. She resists,
+      knowing that deep in her soul the water is but a toxic concoction of the
+      elements that would only bring forth more thirst.
     </p>
 
     <p>
-      In this website, we will show through simulation that even with minimal
-      assumptions about the user base, the fundamental nature of these dating
-      apps leads to many of their users suffering these very fates.
+      Both of these scenarios are opposites, but the same problem remains: they
+      want water, yet they can not get it. The man for lack of any water around,
+      and the woman surrounded by water that is undrinkable. Both the man and
+      the women lay awake at night and wonder:
+    </p>
+  </div>
+
+  <h2 class="reason-title">Why Are Dating Apps So Bad?</h2>
+
+  <div class="text">
+    <p>
+      In this website, we will use statistics and simulation to investigate how
+      both men and women generally have a bad experience with dating apps.
+      Taking things one statistic at a time we will move from an idealistic
+      simulation to something closely resembling the modern dating app today for
+      real users.
     </p>
 
     <p>
-      Lets start with a simple unmodified simulation, if you press the simulate
-      button below you will be able to see the user of our simulated dating app
-      swiping on eachother on at a time. Each user will swip on 20 random users
-      of the opposite gender liking 30% of them, a red line indicates a like.
-      Underneath each user you will see the total number of likes they have
-      recived displayed as text. What do you see when you hit simulate?
+      A quick disclaimer before we get into things, here we only focus on
+      heterosexual relationships due to it being what most available data is on.
+    </p>
+
+    <p>
+      Let's start with a simple unmodified simulation, if you press the simulate
+      button below you will be able to see the users of our simulated dating app
+      swiping on each other one at a time. Each user will swipe on 20 random
+      users of the opposite gender liking 30% of them, a red line indicating a
+      like. Underneath each user you will see the total number of likes they
+      have received displayed as text. Try hitting the simulate button now to
+      check it out.
     </p>
   </div>
 
@@ -796,27 +821,40 @@
 
   <div class="text">
     <p>
-      You should see that men and women get roughly the same average likes and
-      exactly the same average matches. Though there could be some variance due
-      to the small sample size. Now that you undestand the simulation lets get
-      to showing the common ways these numbers get skewed.
+      You should see that men and women get roughly the same average number of
+      likes, plus or minus some random variance, and exactly the same number of
+      average matches. Now that you understand the simulation let's get to
+      showing the common ways these numbers get skewed.
     </p>
   </div>
 
-  <h2 class="reason-title">Reason 1: Too Many Men</h2>
+  <h2 class="reason-title">
+    Reason 1: There Are Plenty Of Fish In the Sea, But Most Of Them Are Men
+  </h2>
 
   <div class="text">
     <p>
-      In an ideal world a dating app would have a 50/50 ratio between the
-      genders to maxmimize potential matches. Even if you had the abbility to
-      perfectly pair up users into coupels with 100% succes, if 60% of your apps
-      users are male and the other 40% female, then 20% of the overall userbase
-      and 1/3 of men would be left unmatched. (For the the purposes of this
-      website we will be talking about just hetrosexul monogemous couples)
+      Let's start by assuming that we are in a perfect world where we have an
+      algorithm that is able to exactly pair all of our users into ideal
+      matches. If we have 50 men and 50 women everything is golden, just use our
+      magic algorithm and call it a day. But what if we have 60 men and 40
+      women? We can pair the 40 women with 40 of the men, but afterwards we
+      would still have 20 men left over. No matter what we do there is no way to
+      leave this scenario with everyone in a happy relationship, even with the
+      most perfect possible algorithm.
     </p>
 
     <p>
-      Sadly popular dating apps are actually much worse than even a 60-40 split:
+      (This is of course assuming monogamy, if you are down for polyamory then
+      you can work with any gender ratio you want)
+    </p>
+
+    <p>
+      Unfortunately most, if not all, mainstream dating apps have a much worse
+      gender ratio than the hypothetical 60:40 we just discussed. In this table
+      we display a few popular dating apps, as well as their percentage of men
+      and women, and the “min possible unmatched %” which is the percentage of
+      people that would be left unmatched assuming a perfect pairing algorithm.
     </p>
 
     <p></p>
@@ -866,20 +904,20 @@
     </table>
 
     <p>
-      These minimum unmatched percentages are based on the asusmption that a
-      dating app is able to create perfect pairs between all of it's user base,
-      which is far from the truth. In reality users dedicate time to swipping on
-      other users in the hopes of finding a match, and few of those matches turn
-      into fullblown relationships
+      Of course we do not actually have a perfect pairing algorithm. In
+      actuality, each user will swipe on many other users liking a small portion
+      of them, and users will only be matched if they like each other mutually.
+      Even after matching, chances of that match developing into a full blown
+      relationship is low.
     </p>
 
     <p>
-      So how do these gender desparitys effect the matches recived by the
-      average user? We can aproximate the answer to this question by running a
-      simulation. Lets assume for the sake of simplicity that we have 100 users
-      and each user swipes on 10 people per day. For now we can also assume that
-      users like other users 30% of the time (more on these exact statistics
-      later).
+      So how do these gender disparities affect the likes and matches received
+      by the average user? Explore the answer in the simulation below. It is the
+      same as the one above, but this time you are given access to a slider that
+      changes the gender ratio of the app. Try running simulations with the
+      ratios from some of the common apps, or any other ratio you want to give a
+      try.
     </p>
   </div>
 
@@ -953,18 +991,72 @@
     </div>
   </div>
 
+  <div class="text">
+    <p>
+      You will likely notice that unlike before, the average matches are not
+      exactly the same, for a match to exist, one man and one woman need to like
+      each other, meaning the total number of matches is the same for each
+      gender. For example, if 40 matches happen then the total matches for men
+      and women must both be 40. However, if there are 80 men and 20 women, then
+      the average woman will have 2 matches and the average man just ½ a match,
+      since those matches are distributed over different numbers of people.
+    </p>
+
+    <p>
+      The second thing to notice is that we are already seeing some decent skew
+      in terms of average likes. Even using Hinge’s ratio of 65% male, which is
+      the best of the ones listed, we see that women on average receive over 3x
+      as many likes as men.
+    </p>
+  </div>
+
   <h2 class="reason-title">Reason 2: Overload And Desperation</h2>
 
   <div class="text">
     <p>
-      Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed vestibulum
-      tellus non nunc condimentum, in rutrum metus aliquam. Donec vitae dolor ac
-      magna aliquet vestibulum.
+      Some articles claim women tend to be more selective due to many men
+      lacking essential emotional and communicative skills needed to build a
+      relationship, such as <a
+        href="https://www.psychologytoday.com/ca/blog/the-state-our-unions/202208/whats-behind-the-rise-lonely-single-men"
+        target="_blank">this article</a
+      > from Psychology Today on what is behind the rise of lonely single men.
     </p>
 
     <p>
-      Vivamus et enim ut lectus aliquam sodales. Integer sit amet tortor nec
-      lectus congue congue. Ut ut tortor eget mauris venenatis aliquam.
+      Some claim it is due to the fact that culturally men are pursuers and
+      women are the pursued, one study found that when the roles are reversed,
+      men get much pickier and women much less picky, you can read more at <a
+        href="https://www.smithsonianmag.com/smart-news/men-are-just-as-picky-as-women-about-who-theyd-dateif-theyre-the-ones-being-pursued-180947850/"
+        target="_blank">this article</a
+      > from the Smithsonian Magazine.
+    </p>
+
+    <p>
+      Others claim it is just a matter of evolution, since choosing a partner
+      has higher stakes for women, who are capped at having 1 child every 9
+      months, and are likely to be expected to dedicate a great amount of
+      resources to raising that child, such as <a
+        href="https://www.independent.co.uk/life-style/love-sex/women-men-dating-websites-picky-australia-study-a8418886.html"
+        target="_blank">this Independent article</a
+      > discussing an Australian study.
+    </p>
+
+    <p>
+      Whatever you believe, on dating apps there is an overwhelming number of
+      men. This means that women are incentivized to be selective about who they
+      like, since liking too often would result in getting bombarded with too
+      many men to feasibly chat with. Men on the other hand as the majority get
+      much less attention, and are thus incentivized to cast as wide of a net as
+      possible in order to have a chance of getting a match.
+    </p>
+
+    <p>
+      When we look at the actual numbers we see that whatever the cause is, men
+      like women's profiles on average about 46% of the time, and women like
+      men's profiles on average 14% of the time. How does this affect our
+      simulation? Try running it to find out, and feel free to play with the
+      sliders to further explore how different like rates can change the
+      distributions, or how they work in tandem with different gender ratios.
     </p>
   </div>
 
@@ -1059,7 +1151,7 @@
       <input
         type="range"
         min="0"
-        max="100"
+        max="60"
         bind:value={mAverageLikeRate[3]}
         bind:this={slider3}
         class="slider"
@@ -1073,7 +1165,7 @@
       <input
         type="range"
         min="0"
-        max="100"
+        max="60"
         bind:value={wAverageLikeRate[3]}
         bind:this={slider4}
         class="slider"
@@ -1082,18 +1174,34 @@
     </div>
   </div>
 
+  <div class="text">
+    <p>
+      Notice how using the same Hinge ratio of 65% male, women now receive
+      roughly 11x as many likes as men, and the average number of matches has
+      gone down for both genders compared to when we were using the 30% like
+      rate across the board.
+    </p>
+
+    <p>
+      But this has all been assuming everyone has an equal chance of being
+      liked, what happens when we account for the fact that some profiles are on
+      average more desirable than others?
+    </p>
+  </div>
+
   <h2 class="reason-title">Reason 3: Attractiveness</h2>
 
   <div class="text">
     <p>
-      Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed vestibulum
-      tellus non nunc condimentum, in rutrum metus aliquam. Donec vitae dolor ac
-      magna aliquet vestibulum.
-    </p>
-
-    <p>
-      Vivamus et enim ut lectus aliquam sodales. Integer sit amet tortor nec
-      lectus congue congue. Ut ut tortor eget mauris venenatis aliquam.
+      According to Hinge’s now deleted blog post, the top 25% of women receive
+      half of all likes that go to women, and the top 15% of men receive half of
+      all likes that go to men. This makes sense as an intuitive next step for
+      reason 2, women have higher standards: therefore they tend to go for more
+      desirable men. So once again let's simulate the effect of this. Here we
+      have marked the top 15% of men and 25% of women with black outlines, and
+      adjusted the like rates such that the averages stay the same, but half of
+      the likes go to the top of their respective gender. Try comparing it with
+      the simulation from reason 2 and seeing what changes.
     </p>
   </div>
 
@@ -1188,7 +1296,7 @@
       <input
         type="range"
         min="0"
-        max="100"
+        max="60"
         bind:value={mAverageLikeRate[4]}
         bind:this={slider6}
         class="slider"
@@ -1202,13 +1310,45 @@
       <input
         type="range"
         min="0"
-        max="100"
+        max="60"
         bind:value={wAverageLikeRate[4]}
         bind:this={slider7}
         class="slider"
       />
       <span>{wAverageLikeRate[4]}%</span>
     </div>
+  </div>
+
+  <div class="text">
+    <p>
+      Looking at the graphs alone it may look like not much has changed, but
+      paying closer attention to the like counts underneath the circles reveals
+      a different story. Notice that using the 65% male, 46% male like rate, 14%
+      female like rate stats from before, top men receive a little over 5x as
+      many likes as average men, whereas top women receive around 3x as many
+      likes as average women. We see that top women receive over 30x as many
+      likes as average men.
+    </p>
+
+    <p>
+      It is worth noting that here we assumed everyone was either “top” or
+      “average” when in reality everyone is likely to exist somewhere on a
+      gradient between extremely desirable and extremely not desirable, but
+      since we have no stats aside from that hinge blog post we can only
+      speculate on how people are distributed over said gradient.
+    </p>
+  </div>
+
+  <h2 class="reason-title">Conclusion</h2>
+  <div class="text">
+    <p>Dating Apps Suck Because:</p>
+    <ol>
+      <li>Too Many Men</li>
+      <li>Differences in like rates between genders</li>
+      <li>
+        You are not hot (or you are hot and you are getting swarmed by likes)
+      </li>
+    </ol>
   </div>
 
   <h2 class="reason-title">Sources</h2>
