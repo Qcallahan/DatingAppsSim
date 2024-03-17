@@ -907,17 +907,17 @@
       Of course we do not actually have a perfect pairing algorithm. In
       actuality, each user will swipe on many other users liking a small portion
       of them, and users will only be matched if they like each other mutually.
-      Even after matching, chances of that match developing into a full blown
-      relationship is low.
+      Even after matching, the chances of that match developing into a full
+      blown relationship is low.
     </p>
 
     <p>
       So how do these gender disparities affect the likes and matches received
       by the average user? Explore the answer in the simulation below. It is the
       same as the one above, but this time you are given access to a slider that
-      changes the gender ratio of the app. Try running simulations with the
-      ratios from some of the common apps, or any other ratio you want to give a
-      try.
+      changes the gender ratio of the hypothetical app. Try running simulations
+      with the ratios from some of the common apps, or any other ratio you want
+      to give a try.
     </p>
   </div>
 
